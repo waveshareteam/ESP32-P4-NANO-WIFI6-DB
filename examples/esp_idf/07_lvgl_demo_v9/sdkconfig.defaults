@@ -1,0 +1,156 @@
+# This file was generated using idf.py save-defconfig or menuconfig [D] key. It can be edited manually.
+# Espressif IoT Development Framework (ESP-IDF) 6.0.1 Project Minimal Configuration
+#
+# default:
+CONFIG_IDF_TARGET="esp32p4"
+
+#
+# Serial flasher config
+#
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+# end of Serial flasher config
+
+#
+# Partition Table
+#
+CONFIG_PARTITION_TABLE_CUSTOM=y
+# end of Partition Table
+
+#
+# Compiler options
+#
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+# end of Compiler options
+
+#
+# Component config
+#
+
+#
+# ESP PSRAM
+#
+CONFIG_SPIRAM=y
+
+#
+# PSRAM config
+#
+CONFIG_SPIRAM_XIP_FROM_PSRAM=y
+# end of PSRAM config
+# end of ESP PSRAM
+
+#
+# ESP System Settings
+#
+
+#
+# Cache config
+#
+CONFIG_CACHE_L2_CACHE_256KB=y
+CONFIG_CACHE_L2_CACHE_LINE_128B=y
+# end of Cache config
+
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=10240
+# end of ESP System Settings
+
+#
+# FreeRTOS
+#
+
+#
+# Kernel
+#
+CONFIG_FREERTOS_HZ=1000
+CONFIG_FREERTOS_VTASKLIST_INCLUDE_COREID=y
+CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS=y
+# end of Kernel
+# end of FreeRTOS
+
+#
+# LVGL configuration
+#
+
+#
+# Memory Settings
+#
+CONFIG_LV_USE_CLIB_MALLOC=y
+CONFIG_LV_USE_CLIB_STRING=y
+CONFIG_LV_USE_CLIB_SPRINTF=y
+# end of Memory Settings
+
+#
+# HAL Settings
+#
+CONFIG_LV_DEF_REFR_PERIOD=15
+# end of HAL Settings
+
+#
+# Operating System (OS)
+#
+CONFIG_LV_OS_FREERTOS=y
+# end of Operating System (OS)
+
+#
+# Rendering Configuration
+#
+CONFIG_LV_DRAW_SW_DRAW_UNIT_CNT=2
+# end of Rendering Configuration
+
+#
+# Font Usage
+#
+
+#
+# Enable built-in fonts
+#
+CONFIG_LV_FONT_MONTSERRAT_12=y
+CONFIG_LV_FONT_MONTSERRAT_16=y
+CONFIG_LV_FONT_MONTSERRAT_18=y
+CONFIG_LV_FONT_MONTSERRAT_22=y
+# end of Enable built-in fonts
+
+CONFIG_LV_USE_FONT_COMPRESSED=y
+# end of Font Usage
+
+#
+# Text Settings
+#
+CONFIG_LV_TXT_BREAK_CHARS=" ,.;:-_"
+# end of Text Settings
+
+#
+# Others
+#
+CONFIG_LV_USE_SYSMON=y
+CONFIG_LV_USE_PERF_MONITOR=y
+CONFIG_LV_USE_IMGFONT=y
+# end of Others
+
+#
+# Demos
+#
+CONFIG_LV_USE_DEMO_BENCHMARK=y
+CONFIG_LV_USE_DEMO_RENDER=y
+CONFIG_LV_USE_DEMO_SCROLL=y
+CONFIG_LV_USE_DEMO_STRESS=y
+CONFIG_LV_USE_DEMO_TRANSFORM=y
+CONFIG_LV_USE_DEMO_MUSIC=y
+CONFIG_LV_DEMO_MUSIC_AUTO_PLAY=y
+CONFIG_LV_USE_DEMO_FLEX_LAYOUT=y
+CONFIG_LV_USE_DEMO_MULTILANG=y
+# end of Demos
+# end of LVGL configuration
+
+#
+# Board Support Package(ESP32-P4)
+#
+
+#
+# Display
+#
+CONFIG_BSP_LCD_TYPE_480_1920_8_8_INCH_A=y
+# end of Display
+# end of Board Support Package(ESP32-P4)
+# end of Component config
+
+CONFIG_IDF_EXPERIMENTAL_FEATURES=y

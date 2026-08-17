@@ -1,0 +1,60 @@
+menu "Example Configuration"
+
+    config EXAMPLE_STORE_HISTORY
+        bool "Store command history in flash"
+        default y
+        help
+            Linenoise line editing library provides functions to save and load
+            command history. If this option is enabled, initalizes a FAT filesystem
+            and uses it to store command history.
+
+    config EXAMPLE_I2C_MASTER_SCL
+        int "SCL GPIO Num"
+        default 19 if IDF_TARGET_ESP32
+        default 8
+        help
+            GPIO number for I2C Master clock line.
+
+    config EXAMPLE_I2C_MASTER_SDA
+        int "SDA GPIO Num"
+        default 18 if IDF_TARGET_ESP32
+        default 7
+        help
+            GPIO number for I2C Master data line.
+
+    choice EXAMPLE_I2C_DEFAULT_SPEED
+        bool "Default I2C speed"
+        default EXAMPLE_I2C_SPEED_100KHZ
+        help
+            Select the I2C clock speed used immediately after boot.
+
+        config EXAMPLE_I2C_SPEED_100KHZ
+            bool "100 kHz (standard mode)"
+
+        config EXAMPLE_I2C_SPEED_400KHZ
+            bool "400 kHz (fast mode)"
+    endchoice
+
+    config EXAMPLE_I2C_WAVEFORM_ADDRESS
+        hex "Waveform test slave address"
+        range 0x08 0x77
+        default 0x50
+        help
+            7-bit address used by the continuous waveform test.
+
+    config EXAMPLE_I2C_WAVEFORM_DATA
+        hex "Waveform test data"
+        range 0x00 0xff
+        default 0x55
+        help
+            Byte sent continuously after the address. ACK checking is disabled
+            so a waveform is generated even when no slave is connected.
+
+    config EXAMPLE_I2C_WAVEFORM_INTERVAL_MS
+        int "Waveform test interval (ms)"
+        range 1 10000
+        default 20
+        help
+            Delay between continuous I2C waveform transactions.
+
+endmenu

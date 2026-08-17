@@ -1,0 +1,5 @@
+dependencies:
+  espressif/ethernet_init:
+    version: ~1.2.0
+  espressif/esp_hosted: ^3.0.6
+  espressif/esp_wifi_remote: ^1.6.4

@@ -1,0 +1,11 @@
+dependencies:
+  idf:
+    version: ">=5.5"
+  esp32_p4_nano_wifi6_db:
+    version: '*'
+    override_path: ../../../../../firmware/esp32_p4_nano_wifi6_db
+    rules:
+    - if: target in [esp32p4]
+
+description: Minimal ESP32-P4 audio helpers for the I2S codec example
+version: 0.0.1

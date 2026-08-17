@@ -1,0 +1,81 @@
+#pragma once
+
+#include "../../../../esp_panel_drivers_conf.h"
+#include "esp_lcd_panel_vendor.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define ESP_LCD_JD9365_LOCAL_VER_MAJOR    (1)
+#define ESP_LCD_JD9365_LOCAL_VER_MINOR    (0)
+#define ESP_LCD_JD9365_LOCAL_VER_PATCH    (1)
+
+#if CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A
+#define ESP_LCD_JD9365_LOCAL_HOR_RES                 (800)
+#define ESP_LCD_JD9365_LOCAL_VER_RES                 (1280)
+#define ESP_LCD_JD9365_LOCAL_LANE_BIT_RATE_MBPS      (1500)
+#define ESP_LCD_JD9365_LOCAL_DPI_CLOCK_FREQ_MHZ      (80)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_PULSE_WIDTH       (20)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_BACK_PORCH        (20)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_FRONT_PORCH       (40)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_PULSE_WIDTH       (4)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_BACK_PORCH        (10)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_FRONT_PORCH       (30)
+#elif CONFIG_BSP_LCD_TYPE_720_1280_9_INCH_B
+#define ESP_LCD_JD9365_LOCAL_HOR_RES                 (720)
+#define ESP_LCD_JD9365_LOCAL_VER_RES                 (1280)
+#define ESP_LCD_JD9365_LOCAL_LANE_BIT_RATE_MBPS      (1200)
+#define ESP_LCD_JD9365_LOCAL_DPI_CLOCK_FREQ_MHZ      (70)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_PULSE_WIDTH       (50)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_BACK_PORCH        (50)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_FRONT_PORCH       (50)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_PULSE_WIDTH       (4)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_BACK_PORCH        (12)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_FRONT_PORCH       (26)
+#elif CONFIG_BSP_LCD_TYPE_720_1280_10_1_INCH_B
+#define ESP_LCD_JD9365_LOCAL_HOR_RES                 (720)
+#define ESP_LCD_JD9365_LOCAL_VER_RES                 (1280)
+#define ESP_LCD_JD9365_LOCAL_LANE_BIT_RATE_MBPS      (1200)
+#define ESP_LCD_JD9365_LOCAL_DPI_CLOCK_FREQ_MHZ      (70)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_PULSE_WIDTH       (50)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_BACK_PORCH        (50)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_FRONT_PORCH       (50)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_PULSE_WIDTH       (4)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_BACK_PORCH        (12)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_FRONT_PORCH       (26)
+#elif CONFIG_BSP_LCD_TYPE_800_800_3_4_INCH
+#define ESP_LCD_JD9365_LOCAL_HOR_RES                 (800)
+#define ESP_LCD_JD9365_LOCAL_VER_RES                 (800)
+#define ESP_LCD_JD9365_LOCAL_LANE_BIT_RATE_MBPS      (1200)
+#define ESP_LCD_JD9365_LOCAL_DPI_CLOCK_FREQ_MHZ      (80)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_PULSE_WIDTH       (20)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_BACK_PORCH        (20)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_FRONT_PORCH       (40)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_PULSE_WIDTH       (4)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_BACK_PORCH        (12)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_FRONT_PORCH       (24)
+#elif CONFIG_BSP_LCD_TYPE_720_720_4_INCH
+#define ESP_LCD_JD9365_LOCAL_HOR_RES                 (720)
+#define ESP_LCD_JD9365_LOCAL_VER_RES                 (720)
+#define ESP_LCD_JD9365_LOCAL_LANE_BIT_RATE_MBPS      (1200)
+#define ESP_LCD_JD9365_LOCAL_DPI_CLOCK_FREQ_MHZ      (80)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_PULSE_WIDTH       (20)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_BACK_PORCH        (20)
+#define ESP_LCD_JD9365_LOCAL_HSYNC_FRONT_PORCH       (40)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_PULSE_WIDTH       (4)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_BACK_PORCH        (12)
+#define ESP_LCD_JD9365_LOCAL_VSYNC_FRONT_PORCH       (24)
+#else
+#error "Unsupported JD9365 panel profile"
+#endif
+
+esp_err_t esp_lcd_new_panel_jd9365_local(
+    const esp_lcd_panel_io_handle_t io,
+    const esp_lcd_panel_dev_config_t *panel_dev_config,
+    esp_lcd_panel_handle_t *ret_panel
+);
+
+#ifdef __cplusplus
+}
+#endif

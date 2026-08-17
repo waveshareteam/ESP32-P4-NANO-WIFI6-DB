@@ -1,0 +1,7 @@
+## IDF Component Manager Manifest File
+dependencies:
+  esp32_p4_nano_wifi6_db:
+    version: '*'
+    override_path: ../../../../firmware/esp32_p4_nano_wifi6_db
+    rules:
+    - if: target in [esp32p4]

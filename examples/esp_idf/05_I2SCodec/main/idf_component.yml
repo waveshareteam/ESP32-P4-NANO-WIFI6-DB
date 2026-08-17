@@ -1,0 +1,15 @@
+## IDF Component Manager Manifest File
+dependencies:
+  idf:
+    version: '>=5.0'
+
+  espressif/es8311:
+    version: ^1.0.0
+    rules:
+    - if: target in [esp32, esp32s2, esp32s3, esp32h2]
+
+  esp32_p4_nano_wifi6_db:
+    version: '*'
+    override_path: ../../../../firmware/esp32_p4_nano_wifi6_db
+    rules:
+    - if: target in [esp32p4]

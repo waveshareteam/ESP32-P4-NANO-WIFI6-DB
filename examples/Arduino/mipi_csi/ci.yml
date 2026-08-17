@@ -1,0 +1,4 @@
+fqbn_append: PartitionScheme=default
+
+requires:
+  - CONFIG_ESP_VIDEO_ENABLE_MIPI_CSI_VIDEO_DEVICE=y
