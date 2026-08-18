@@ -1,0 +1,29 @@
+dependencies:
+  idf:
+    version: '>=5.3.0'
+  
+  esp32_p4_nano_wifi6_db:
+    version: '*'
+    override_path: ../../../esp32_p4_nano_wifi6_db
+  
+  espressif/esp_codec_dev:
+    version: "*"
+    public: true
+
+  chmorgan/esp-audio-player:
+    version: "1.1.*"
+    public: true
+
+  chmorgan/esp-file-iterator:
+    version: "1.0.0"
+    public: true
+
+  espressif/ip101:
+    version: "^1.0.0"
+    rules:
+      - if: "idf_version >= 6.0"
+
+description: Board Support Package for ESP32-P4-NANO
+targets:
+- esp32p4
+version: 0.0.2
