@@ -417,7 +417,7 @@ esp_err_t bsp_audio_init(const i2s_std_config_t *i2s_config)
     esp_err_t ret = i2s_new_channel(&chan_config, &i2s_tx_chan, &i2s_rx_chan);
     ESP_GOTO_ON_ERROR(ret, fail, TAG, "Create I2S channels failed");
 
-    const i2s_std_config_t default_config = BSP_I2S_DUPLEX_MONO_CFG(22050);
+    const i2s_std_config_t default_config = BSP_I2S_DUPLEX_MONO_CFG(48000);
     const i2s_std_config_t *config = i2s_config ? i2s_config : &default_config;
     i2s_mclk_multiple = config->clk_cfg.mclk_multiple ? config->clk_cfg.mclk_multiple : 256;
     ret = i2s_channel_init_std_mode(i2s_tx_chan, config);

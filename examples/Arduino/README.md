@@ -29,7 +29,6 @@ ESP-Hosted 通过 SDIO 连接，不是 Arduino 的编译目标。
 | `sdmmc` | 以 4-bit 模式测试 microSD 文件读写 | [README](./sdmmc/README.md) |
 | `mipi_dsi` | MIPI-DSI LCD 色条和背光测试 | [README](./mipi_dsi/README.md) |
 | `mipi_csi` | OV5647 摄像头实时显示到 MIPI-DSI LCD | [README](./mipi_csi/README.md) |
-| `squareline_wifi_clock` | LVGL/SquareLine Wi-Fi 时钟界面 | [README](./squareline_wifi_clock/README.md) |
 
 ## LCD 默认配置
 
@@ -47,8 +46,7 @@ ESP-Hosted 通过 SDIO 连接，不是 Arduino 的编译目标。
 - `mipi_csi` 先使用 `Wire1`，再取得新版 `i2c_master` 总线句柄，供 ESP_Video
   摄像头 SCCB 和 LCD 背光共用。
 - `mipi_dsi` 使用 `driver/i2c.h` 的 legacy API。
-- `squareline_wifi_clock` 使用 legacy API 初始化 I2C1，触摸驱动通过跳过主机初始化
-  的方式复用该总线。
+
 
 复杂示例的构建和硬件状态仍需在目标板上单独验证；本目录 README 中的版本和参数
 不代表其他 ESP32-P4 板卡或其他 Arduino-ESP32 版本也兼容。
