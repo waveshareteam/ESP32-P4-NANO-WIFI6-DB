@@ -32,10 +32,10 @@ ESP-Hosted 通过 SDIO 连接，不是 Arduino 的编译目标。
 
 ## LCD 默认配置
 
-- `mipi_dsi` 和 `squareline_wifi_clock` 默认使用 8 英寸 JD9365，分辨率为
+- `mipi_dsi` 和 `mipi_csi` 默认使用 10.1 英寸 JD9365，分辨率为
   800×1280、RGB565、双 DSI lane、1500 Mbps/lane。
-- `mipi_csi` 当前 `lcd_panel.h` 的默认值是 ILI9881C；使用其他 LCD 时必须修改
-  `LCD_PANEL_TYPE`，不能直接套用上面的 JD9365 默认值。
+- 使用其他 LCD 时，按对应示例 README 修改面板 profile 或 `LCD_PANEL_TYPE`，不能
+  直接套用 10.1 英寸 JD9365 的配置。
 
 ## I2C 总线使用方式
 

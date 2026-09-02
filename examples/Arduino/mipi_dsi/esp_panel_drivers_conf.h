@@ -109,14 +109,16 @@
  * Select exactly one JD9365 panel profile. The selected profile supplies the
  * controller initialization sequence and the matching MIPI-DSI geometry.
  */
-#define CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A            (1)
+#define CONFIG_BSP_LCD_TYPE_800_1280_10_1_INCH_A         (1)
+#define CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A            (0)
 #define CONFIG_BSP_LCD_TYPE_720_1280_10_1_INCH_B         (0)
 #define CONFIG_BSP_LCD_TYPE_720_1280_9_INCH_B            (0)
 #define CONFIG_BSP_LCD_TYPE_800_800_3_4_INCH             (0)
 #define CONFIG_BSP_LCD_TYPE_720_720_4_INCH               (0)
 
 #if ESP_PANEL_DRIVERS_LCD_ENABLE_JD9365_LOCAL
-    #if (CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A + \
+    #if (CONFIG_BSP_LCD_TYPE_800_1280_10_1_INCH_A + \
+         CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A + \
          CONFIG_BSP_LCD_TYPE_720_1280_10_1_INCH_B + \
          CONFIG_BSP_LCD_TYPE_720_1280_9_INCH_B + \
          CONFIG_BSP_LCD_TYPE_800_800_3_4_INCH + \

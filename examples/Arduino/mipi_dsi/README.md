@@ -23,21 +23,22 @@ I2C 背光控制器验证 LCD 背光。它不使用摄像头、LVGL 或 GT911 �
    - `ESP_PANEL_DRIVERS_LCD_ENABLE_ILI9881C_LOCAL`
 
 4. 如果选择 JD9365，在同一个配置文件中选择与实际面板匹配的屏幕 profile。例如当前默认
-   8 英寸面板：
+   10.1 英寸面板：
 
    ```cpp
-   #define CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A    (1)
+   #define CONFIG_BSP_LCD_TYPE_800_1280_10_1_INCH_A (1)
+   #define CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A    (0)
    #define CONFIG_BSP_LCD_TYPE_720_1280_10_1_INCH_B (0)
    ```
 
-   当前配置中的 `CONFIG_BSP_LCD_TYPE_720_1280_10_1_INCH_B` 是独立的
-   720×1280、1200 Mbps/lane B 型面板 profile；它不是 Nano BSP 板载 10.1 英寸
-   JD9365 的 `800×1280`、1500 Mbps/lane A 型 profile，不能直接作为板载 10.1 英寸
-   面板的替代配置。实际面板必须与寄存器表和 DSI 参数匹配。
+   `CONFIG_BSP_LCD_TYPE_800_1280_8_INCH_A` 与当前 10.1 英寸 A 型 profile 使用相同的
+   800×1280、1500 Mbps/lane DSI 参数；`CONFIG_BSP_LCD_TYPE_720_1280_10_1_INCH_B`
+   是独立的 720×1280、1200 Mbps/lane 旧 B 型 profile，不能与 Nano BSP 板载 10.1
+   英寸面板混用。实际面板必须与寄存器表和 DSI 参数匹配。
 5. 编译并上传，打开 `115200` 波特率串口监视器。本示例启动后循环显示 MIPI-DSI
    色条，用于验证 LCD、DSI 时序和背光。
 
-当前默认配置为 8 英寸 JD9365：800×1280、RGB565、双通道、1500 Mbps/lane。
+当前默认配置为 10.1 英寸 JD9365：800×1280、RGB565、双通道、1500 Mbps/lane。
 
 如果选择 HX8394 或 ILI9881C，示例会使用对应驱动中定义的固定分辨率和 DSI 时序；
 JD9365 的屏幕尺寸宏只在选择 JD9365 时生效。

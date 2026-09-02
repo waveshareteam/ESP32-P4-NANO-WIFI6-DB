@@ -3,8 +3,8 @@
 ## 作用
 
 初始化 ESP32-P4-NANO-WIFI6-DB 的 OV5647 MIPI-CSI 摄像头和 MIPI-DSI LCD，
-将摄像头实时画面显示到 LCD。LCD 入口支持 JD9365、HX8394 和 ILI9881C，
-当前 `lcd_panel.h` 默认使用 ILI9881C 的 RGB565 配置。
+将摄像头实时画面显示到 LCD。LCD 入口支持 JD9365、HX8394 和 ILI9881C，当前默认使用
+10.1 英寸 JD9365 的 RGB565 配置。
 
 ## 前置条件
 
