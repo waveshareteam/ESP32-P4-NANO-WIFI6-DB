@@ -1,18 +1,27 @@
-# ESP32-P4-NANO-WIFI6-DB
-
-A development board based on ESP32-P4 and ESP32-C5 for multimedia, networking, and edge applications.
-
-English · [中文](./README_CN.md) · [🌐 Product Page](https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm) · [📚 Official Documentation](https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/) · [🧩 ESP-IDF Examples](./examples/esp_idf/) · [🔧 Arduino Examples](./examples/Arduino/) · [📦 Firmware](./firmware/)
+<div align="center">
+  <h1>ESP32-P4-NANO-WIFI6-DB</h1>
+  <p><strong>ESP32-P4 development board with an ESP32-C5 Wi-Fi 6 co-processor and MIPI-DSI / MIPI-CSI interfaces</strong></p>
+  <p>
+    <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/waveshareteam/ESP32-P4-NANO-WIFI6-DB"></a>
+  </p>
+  <p>
+    <a href="README_CN.md">中文</a> ·
+    <a href="https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm">🌐 Product Page</a> ·
+    <a href="https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/">📚 Documentation</a> ·
+    <a href="firmware/">📦 Firmware</a> ·
+    <a href="examples/esp_idf/">🧩 ESP-IDF Examples</a> ·
+    <a href="examples/Arduino/">🔧 Arduino Examples</a>
+  </p>
+  <img src="assert/ESP32-P4-NANO-WIFI6-DB.jpg" alt="Waveshare ESP32-P4-NANO-WIFI6-DB" width="720">
+</div>
 
 ---
 
-![ESP32-P4-NANO-WIFI6-DB](./assert/ESP32-P4-NANO-WIFI6-DB.jpg)
+## ✨ Overview
 
 Waveshare ESP32-P4-NANO-WIFI6-DB is a development board for multimedia, networking, and edge applications. This repository provides the matching ESP-IDF BSP, Arduino board files, peripheral examples, Brookesia firmware source, and precompiled firmware.
 
 The board uses ESP32-P4 as the main processor and connects an ESP32-C5 wireless co-processor through ESP-Hosted/SDIO. It provides interfaces for external MIPI-DSI displays, MIPI-CSI cameras, audio, microSD, Ethernet, USB Host, and GPIO expansion. The display and camera are external modules; always follow the hardware configuration and the README of the selected example.
-
-## ✨ Overview
 
 This repository includes:
 

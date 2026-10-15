@@ -6,12 +6,11 @@
   </p>
   <p>
     <a href="README.md">English</a> ·
-    <a href="https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm">🛒 产品页面</a> ·
-    <a href="https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/">📚 Wiki</a> ·
-    <a href="components/esp32_p4_nano_wifi6_db/">🔌 BSP</a> ·
+    <a href="https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm">🌐 产品页面</a> ·
+    <a href="https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/">📚 文档</a> ·
+    <a href="firmware/">📦 固件</a> ·
     <a href="examples/esp_idf/">🧩 ESP-IDF 示例</a> ·
-    <a href="examples/Arduino/">🔧 Arduino 示例</a> ·
-    <a href="firmware/">📦 固件</a>
+    <a href="examples/Arduino/">🔧 Arduino 示例</a>
   </p>
   <img src="assert/ESP32-P4-NANO-WIFI6-DB.jpg" alt="Waveshare ESP32-P4-NANO-WIFI6-DB" width="720">
 </div>
