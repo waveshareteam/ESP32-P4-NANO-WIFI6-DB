@@ -209,4 +209,4 @@ Generated files such as **build/**, **managed_components/**, and local **sdkconf
 
 ## 📄 License
 
-The Nano BSP and some additional components contain their own LICENSE files. Follow the license text in the corresponding directory when using or redistributing the files.
+This repository is licensed under the Apache License 2.0; see [LICENSE](./LICENSE). Some components and examples carry their own license or copyright notices, which apply to those files and must be followed when using or redistributing them.
