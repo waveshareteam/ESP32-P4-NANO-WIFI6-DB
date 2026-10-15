@@ -2,9 +2,9 @@
 
 A development board based on ESP32-P4 and ESP32-C5 for multimedia, networking, and edge applications.
 
-[ESP-IDF Examples](./examples/esp_idf/) · [License](#license)
-
 English · [中文](./README_CN.md) · [🌐 Product Page](https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm) · [📚 Official Documentation](https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/) · [🧩 ESP-IDF Examples](./examples/esp_idf/) · [🔧 Arduino Examples](./examples/Arduino/) · [📦 Firmware](./firmware/)
+
+---
 
 ![ESP32-P4-NANO-WIFI6-DB](./assert/ESP32-P4-NANO-WIFI6-DB.jpg)
 
@@ -12,7 +12,7 @@ Waveshare ESP32-P4-NANO-WIFI6-DB is a development board for multimedia, networki
 
 The board uses ESP32-P4 as the main processor and connects an ESP32-C5 wireless co-processor through ESP-Hosted/SDIO. It provides interfaces for external MIPI-DSI displays, MIPI-CSI cameras, audio, microSD, Ethernet, USB Host, and GPIO expansion. The display and camera are external modules; always follow the hardware configuration and the README of the selected example.
 
-## Product Overview
+## ✨ Overview
 
 This repository includes:
 
@@ -35,7 +35,7 @@ Useful entry points:
 | [Hardware Schematic](./hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf) | Development-board schematic |
 | [Official Documentation](https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/) | Waveshare hardware and software documentation |
 
-## Hardware Overview
+## 🖥️ Hardware Overview
 
 | Feature | Device / Interface |
 | --- | --- |
@@ -87,7 +87,7 @@ The Nano BSP supports the following external Waveshare DSI touch panels. The def
 | Waveshare 8-DSI-TOUCH-A | JD9365 | 800 × 1280 | 1500 Mbps |
 | Waveshare 10.1-DSI-TOUCH-A | JD9365 | 800 × 1280 | 1500 Mbps |
 
-## Quick Start
+## 🚀 Quick Start
 
 ### ESP-IDF
 
@@ -120,7 +120,9 @@ The Arduino examples are based on Arduino-ESP32 **3.3.11** and target ESP32-P4. 
 5. Select 16 MB Flash, the **default_16MB** partition scheme, PSRAM enabled, and the correct serial port.
 6. Select the panel profile that matches the connected LCD for display examples.
 
-## ESP-IDF Examples
+## 🧪 Examples
+
+### ESP-IDF
 
 All examples are under [examples/esp_idf](./examples/esp_idf/). Each example has its own project configuration and README; some examples provide both English and Chinese documentation.
 
@@ -140,7 +142,7 @@ All examples are under [examples/esp_idf](./examples/esp_idf/). Each example has
 | [11_usb_extend_screen](./examples/esp_idf/11_usb_extend_screen/) | USB extended-screen example |
 | [12_nvs_counter](./examples/esp_idf/12_nvs_counter/) | Boot-counter persistence with NVS |
 
-## Arduino Examples
+### Arduino
 
 | Example | Main function |
 | --- | --- |
@@ -156,7 +158,7 @@ mipi_dsi and mipi_csi default to the 10.1-inch JD9365 profile: 800 × 1280, RGB5
 
 I2C1 is a shared bus. Different examples may use Arduino Wire1, the legacy I2C API, or the newer i2c_master API. Do not initialize the same bus more than once in one application; see the README of the selected example for details.
 
-## Firmware
+## 📦 Firmware
 
 ### Brookesia Firmware Source
 
@@ -171,7 +173,7 @@ I2C1 is a shared bus. Different examples may use Arduino Wire1, the legacy I2C A
 
 The P4 and C5 firmware target different chips. Confirm the target chip, flash address, and firmware version before flashing. When rebuilding or replacing the C5 firmware, also confirm compatibility with the ESP-Hosted and remote Wi-Fi component versions used by the P4 project.
 
-## Repository Structure
+## 🗂️ Repository Layout
 
 | Path | Purpose |
 | --- | --- |
@@ -185,7 +187,7 @@ The P4 and C5 firmware target different chips. Confirm the target chip, flash ad
 
 Generated files such as **build/**, **managed_components/**, and local **sdkconfig** files are not source files and should not be committed.
 
-## Related Documentation
+## 📚 Documentation
 
 - [Documentation Index](./docs/README.md)
 - [Hardware Guide](./docs/en/hw-reference/user-guide-esp32-p4-nano-wifi6-db.md)
@@ -197,7 +199,7 @@ Generated files such as **build/**, **managed_components/**, and local **sdkconf
 - [Arduino MIPI-CSI README](./examples/Arduino/mipi_csi/README.md)
 - [Board Schematic](./hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf)
 
-## Usage Notes
+## ⚠️ Usage Notes
 
 - Display, touch, and camera functions depend on the external module, power supply, cables, and matching panel profile. A source or build result is not hardware validation.
 - I2C1 is shared by ES8311, GT911, the LCD backlight, and camera SCCB. For camera examples, also verify camera power and SCCB wiring.
@@ -205,6 +207,6 @@ Generated files such as **build/**, **managed_components/**, and local **sdkconf
 - ESP32-P4 Wi-Fi depends on the ESP32-C5 slave firmware and the ESP-Hosted/SDIO link. Check compatibility when changing software on either side.
 - Do not commit real Wi-Fi passwords, API keys, or serial logs containing credentials.
 
-## License
+## 📄 License
 
 The Nano BSP and some additional components contain their own LICENSE files. Follow the license text in the corresponding directory when using or redistributing the files.
