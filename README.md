@@ -70,20 +70,7 @@ Useful entry points:
 | Arduino Flash | 16 MB; default partition scheme **default_16MB** |
 | Arduino serial monitor | **115200** by default |
 
-### Key Hardware Resources
-
-| Function | Pins / Parameters | Notes |
-| --- | --- | --- |
-| Shared I2C | SDA **GPIO7**, SCL **GPIO8** | Shared by ES8311, GT911, LCD backlight, and camera SCCB |
-| ES8311 I2S | MCLK/BCLK/WS/DOUT/DIN: **GPIO13/12/10/9/11** | Audio input and output |
-| Amplifier enable | **GPIO53**, active high | Audio power-amplifier enable |
-| 4-bit SDMMC | CLK/CMD: **GPIO43/44**; D0-D3: **GPIO39/40/41/42** | SD-card power control is **GPIO45**, active low |
-| ESP-Hosted SDIO | CLK/CMD/D0-D3/RESET: **GPIO18/19/14/15/16/17/54** | Connected to the ESP32-C5 co-processor |
-| LCD backlight | I2C address **0x45**, register **0x96** | No dedicated backlight GPIO |
-| LCD reset | Not connected | Handled by the panel initialization flow |
-| GT911 reset / interrupt | Not connected | Touch data is polled over I2C |
-
-GPIO45 and GPIO53 are also used by the BSP for SD-card power and audio-amplifier control. Do not drive them as general-purpose GPIOs while the corresponding peripherals are active.
+For complete pin assignments and interface details, see the [Hardware Guide](./docs/en/hw-reference/user-guide-esp32-p4-nano-wifi6-db.md).
 
 ### MIPI-DSI Panels
 

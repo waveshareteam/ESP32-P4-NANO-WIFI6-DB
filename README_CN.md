@@ -40,29 +40,14 @@
 
 完整引脚定义、接口说明和使用注意见[硬件参考](docs/zh_CN/hw-reference/user-guide-esp32-p4-nano-wifi6-db.md)。
 
-### BSP 引脚分配
-
-| 资源 | BSP 配置 |
-| --- | --- |
-| I2C | SDA GPIO7、SCL GPIO8；ES8311、GT911、LCD 背光和摄像头 SCCB 共用 |
-| 音频 | ES8311；I2S MCLK/BCLK/WS/DOUT/DIN 为 GPIO13/12/10/9/11；功放使能 GPIO53 |
-| microSD | 4-bit SDMMC；CLK/CMD/D0/D1/D2/D3 为 GPIO43/44/39/40/41/42；卡电源 GPIO45，低有效 |
-| ESP-Hosted | SDIO CLK/CMD/D0-D3/RESET 为 GPIO18/19/14/15/16/17/54，连接 ESP32-C5 |
-| 显示 | 双通道 MIPI-DSI；LCD 复位 GPIO 未使用；I2C 背光地址 `0x45`，亮度寄存器 `0x96` |
-| 触摸 | GT911 轮询；复位和中断 GPIO 未使用 |
-| 摄像头 | MIPI-CSI 采集；Arduino 摄像头示例配置 OV5647 |
-| 存储 / USB | microSD 4-bit SDMMC 和 USB Host 支持 |
-
-GPIO45 和 GPIO53 分别用于 SD 卡供电和音频功放控制；对应外设工作时不要将其作为普通 GPIO 驱动。实现细节见 [BSP README](components/esp32_p4_nano_wifi6_db/README.md) 和 [BSP API 参考](components/esp32_p4_nano_wifi6_db/API.md)。
-
 ### ESP-IDF LCD 选择
 
-| 面板 | 控制器 | 分辨率 | DSI lane 速率 |
-| --- | --- | --- | ---: |
-| Waveshare 5-DSI-TOUCH-A | HX8394，5 英寸 | 720 × 1280 | 700 Mbps |
-| Waveshare 7-DSI-TOUCH-A | ILI9881C，7 英寸 | 720 × 1280 | 1000 Mbps |
-| Waveshare 8-DSI-TOUCH-A | JD9365，8 英寸 | 800 × 1280 | 1500 Mbps |
-| Waveshare 10.1-DSI-TOUCH-A | JD9365，10.1 英寸 | 800 × 1280 | 1500 Mbps |
+| 面板 | 控制器 | 分辨率 |
+| --- | --- | --- |
+| [Waveshare 5-DSI-TOUCH-A](https://www.waveshare.net/shop/5-DSI-TOUCH-A.htm) | HX8394，5 英寸 | 720 × 1280 |
+| [Waveshare 7-DSI-TOUCH-A](https://www.waveshare.net/shop/7-DSI-TOUCH-A.htm) | ILI9881C，7 英寸 | 720 × 1280 |
+| [Waveshare 8-DSI-TOUCH-A](https://www.waveshare.net/shop/8-DSI-TOUCH-A.htm) | JD9365，8 英寸 | 800 × 1280 |
+| [Waveshare 10.1-DSI-TOUCH-A](https://www.waveshare.net/shop/10.1-DSI-TOUCH-A.htm) | JD9365，10.1 英寸 | 800 × 1280 |
 
 BSP 默认选择 **10.1 英寸 JD9365**。构建前应确认实际连接的面板，并使用匹配的控制器、分辨率、初始化命令和 DSI 速率。
 
@@ -150,10 +135,6 @@ ESP32-P4 本身不集成射频。Wi-Fi 和蓝牙由 ESP32-C5 协处理器通过 
 - [Arduino 示例](examples/Arduino/README.md)
 - [Brookesia 固件](firmware/brookesia/)
 - [原理图](hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf)
-
-## ✅ 验证范围
-
-本 README 依据仓库源码、板卡定义和默认配置整理，不代表当前版本已经编译成功或完成全部外设验证。显示、触摸、摄像头和音频还依赖外接模块、供电、线缆及正确配置；应针对所选示例、框架版本、面板和开发板分别确认编译、烧录及运行结果。
 
 ## 🤝 支持与贡献
 
