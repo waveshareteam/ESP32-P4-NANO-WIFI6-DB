@@ -195,14 +195,6 @@ Generated files such as **build/**, **managed_components/**, and local **sdkconf
 - [Arduino MIPI-CSI README](./examples/Arduino/mipi_csi/README.md)
 - [Board Schematic](./hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf)
 
-## ⚠️ Usage Notes
-
-- Display, touch, and camera functions depend on the external module, power supply, cables, and matching panel profile. A source or build result is not hardware validation.
-- I2C1 is shared by ES8311, GT911, the LCD backlight, and camera SCCB. For camera examples, also verify camera power and SCCB wiring.
-- GPIO45, GPIO53, SDIO, and MIPI pins have board-level multiplexing. Check the pin table and schematic before using expansion headers.
-- ESP32-P4 Wi-Fi depends on the ESP32-C5 slave firmware and the ESP-Hosted/SDIO link. Check compatibility when changing software on either side.
-- Do not commit real Wi-Fi passwords, API keys, or serial logs containing credentials.
-
 ## 📄 License
 
 This repository is licensed under the Apache License 2.0; see [LICENSE](./LICENSE). Some components and examples carry their own license or copyright notices, which apply to those files and must be followed when using or redistributing them.
