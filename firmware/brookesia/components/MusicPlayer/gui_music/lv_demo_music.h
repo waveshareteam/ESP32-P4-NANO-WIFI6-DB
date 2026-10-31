@@ -14,7 +14,7 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "lvgl.h"
-#include "bsp_board_extra.h"
+#include "board.h"
 
 #define APP_DEMO_MUSIC_ENABLE       1
 #define APP_DEMO_MUSIC_LARGE        0
@@ -43,6 +43,7 @@ void lv_demo_music(lv_obj_t *parent, file_iterator_instance_t *file_iterator);
 void lv_demo_music_close(void);
 
 const char * lv_demo_music_get_title(uint32_t track_id);
+uint32_t lv_demo_music_get_track_count(void);
 const char * lv_demo_music_get_artist(uint32_t track_id);
 const char * lv_demo_music_get_genre(uint32_t track_id);
 uint32_t lv_demo_music_get_track_length(uint32_t track_id);

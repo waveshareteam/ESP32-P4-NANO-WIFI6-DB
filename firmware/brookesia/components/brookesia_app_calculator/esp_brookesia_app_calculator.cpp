@@ -538,4 +538,10 @@ void Calculator::keyboard_event_cb(lv_event_t *e)
     }
 }
 
+// The app is a singleton owned by itself; the registry must not delete it.
+ESP_UTILS_REGISTER_PLUGIN_WITH_CONSTRUCTOR(systems::base::App, Calculator, APP_NAME, []()
+{
+    return std::shared_ptr<Calculator>(Calculator::requestInstance(), [](Calculator *) {});
+})
+
 }

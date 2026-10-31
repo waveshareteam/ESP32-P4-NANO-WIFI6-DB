@@ -1,35 +1,26 @@
-idf_component_register(
-    SRCS "main.cpp"
-    INCLUDE_DIRS ".")
-
-target_compile_options(${COMPONENT_LIB} PUBLIC -Wno-missing-field-initializers)
-
-# Function to get component library
-function(get_component_library component_name output_var)
-    # Get the exact component name
-    idf_build_get_property(build_components BUILD_COMPONENTS)
-    set(TARGET_COMPONENT "")
-    foreach(COMPONENT ${build_components})
-        if(COMPONENT MATCHES "${component_name}" OR COMPONENT MATCHES "espressif__${component_name}")
-            set(TARGET_COMPONENT ${COMPONENT})
-            break()
-        endif()
-    endforeach()
-
-    # Get the component library
-    if(TARGET_COMPONENT STREQUAL "")
-        message(FATAL_ERROR "Component '${component_name}' not found.")
-    else()
-        idf_component_get_property(COMPONENT_LIB ${TARGET_COMPONENT} COMPONENT_LIB)
-        set(${output_var} ${COMPONENT_LIB} PARENT_SCOPE)
+# Pull in every project component. With MINIMAL_BUILD only components reachable
+# from main are built, so a new app only needs its own directory under
+# components/ plus an ESP_UTILS_REGISTER_PLUGIN_WITH_CONSTRUCTOR registration.
+file(GLOB PROJECT_COMPONENT_DIRS LIST_DIRECTORIES true "${CMAKE_CURRENT_LIST_DIR}/../components/*")
+set(PROJECT_COMPONENTS "")
+foreach(component_dir IN LISTS PROJECT_COMPONENT_DIRS)
+    if(EXISTS "${component_dir}/CMakeLists.txt")
+        get_filename_component(component_name "${component_dir}" NAME)
+        list(APPEND PROJECT_COMPONENTS ${component_name})
     endif()
-endfunction()
+endforeach()
 
-# get_component_library("lvgl" LVGL_LIB)
-# target_compile_options(
-#     ${LVGL_LIB}
-#     PUBLIC
-#         "-Wno-attributes"
-# )
+idf_component_register(
+    SRCS "main.cpp" "BootLoading.cpp"
+    INCLUDE_DIRS "."
+    PRIV_REQUIRES
+        ${PROJECT_COMPONENTS}
+        esp_event
+        esp_lvgl_adapter
+        esp_netif
+        esp_wifi
+        nvs_flash
+        board
+)
 
-spiffs_create_partition_image(storage ../spiffs FLASH_IN_PROJECT)
+spiffs_create_partition_image(storage "${CMAKE_CURRENT_LIST_DIR}/../spiffs" FLASH_IN_PROJECT)

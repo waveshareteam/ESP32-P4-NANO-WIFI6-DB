@@ -33,6 +33,7 @@ static void auto_step_cb(lv_timer_t *timer);
  **********************/
 static lv_obj_t *ctrl;
 static lv_obj_t *list;
+static lv_obj_t *music_screen;
 
 static const char *title_list[] = {
     "Waiting for true love",
@@ -109,7 +110,7 @@ static lv_timer_t *auto_step_timer;
 
 static lv_color_t original_screen_bg_color;
 
-static uint32_t active_track_cnt = 5;
+static uint32_t active_track_cnt;
 static file_iterator_instance_t *_file_iterator = NULL;
 static const char *artist_list_name = "Unknown Artist";
 static const char *genre_list_name = "Unknown Genre";
@@ -127,32 +128,54 @@ void lv_demo_music(lv_obj_t *parent, file_iterator_instance_t *file_iterator)
 {
 
     _file_iterator = file_iterator;
+    music_screen = parent;
 
-    active_track_cnt = file_iterator_get_count(_file_iterator);
-    lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x343247), 0);
+    active_track_cnt = (_file_iterator != NULL) ? file_iterator_get_count(_file_iterator) : 0;
+    if (active_track_cnt > ACTIVE_TRACK_CNT)
+    {
+        active_track_cnt = ACTIVE_TRACK_CNT;
+    }
+    original_screen_bg_color = lv_obj_get_style_bg_color(music_screen, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(music_screen, lv_color_hex(0x343247), 0);
 
     list = lv_demo_music_list_create(parent);
     ctrl = lv_demo_music_main_create(parent, file_iterator);
 
 #if APP_DEMO_MUSIC_AUTO_PLAY
-    lv_timer_create(auto_step_cb, 1000, NULL);
+    auto_step_timer = lv_timer_create(auto_step_cb, 1000, NULL);
 #endif
 }
 
 void lv_demo_music_close(void)
 {
-    /*Delete all aniamtions*/
-    lv_anim_del(NULL, NULL);
+    lv_obj_t *screen = music_screen;
+    music_screen = NULL;
 
 #if APP_DEMO_MUSIC_AUTO_PLAY
-    lv_timer_del(auto_step_timer);
+    if (auto_step_timer) {
+        lv_timer_delete(auto_step_timer);
+        auto_step_timer = NULL;
+    }
 #endif
     lv_demo_music_list_close();
     lv_demo_music_main_close();
+    ctrl = NULL;
+    list = NULL;
+    _file_iterator = NULL;
+    active_track_cnt = 0;
 
-    lv_obj_clean(lv_scr_act());
+    /* The app may be closed while another screen is active.  Only clean the
+     * screen that belongs to MusicPlayer; touching lv_scr_act() here can
+     * destroy the foreground app. */
+    if (screen && lv_obj_is_valid(screen)) {
+        lv_obj_clean(screen);
+        lv_obj_set_style_bg_color(screen, original_screen_bg_color, 0);
+    }
+}
 
-    lv_obj_set_style_bg_color(lv_scr_act(), original_screen_bg_color, 0);
+uint32_t lv_demo_music_get_track_count(void)
+{
+    return active_track_cnt;
 }
 
 const char *lv_demo_music_get_title(uint32_t track_id)

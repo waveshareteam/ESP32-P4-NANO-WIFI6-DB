@@ -12,7 +12,7 @@
     <a href="examples/esp_idf/">🧩 ESP-IDF 示例</a> ·
     <a href="examples/Arduino/">🔧 Arduino 示例</a>
   </p>
-  <img src="assert/ESP32-P4-NANO-WIFI6-DB.jpg" alt="Waveshare ESP32-P4-NANO-WIFI6-DB" width="720">
+  <img src="https://www.waveshare.net/photo/development-board/ESP32-P4-NANO-WIFI6-DB/ESP32-P4-NANO-WIFI6-DB-details-1.jpg" alt="Waveshare ESP32-P4-NANO-WIFI6-DB" width="720">
 </div>
 
 ---
@@ -38,7 +38,7 @@
 | 板级支持 | 本地 ESP-IDF BSP 组件 `esp32_p4_nano_wifi6_db`，版本 `0.0.1` |
 | 原理图 | [hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf](hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf) |
 
-完整引脚定义、接口说明和使用注意见[硬件参考](docs/zh_CN/hw-reference/user-guide-esp32-p4-nano-wifi6-db.md)。
+完整引脚定义、接口说明和使用注意见[硬件参考](docs/zh_CN/hw-reference/user-guide.md)。
 
 ### ESP-IDF LCD 选择
 
@@ -129,7 +129,7 @@ ESP32-P4 本身不集成射频。Wi-Fi 和蓝牙由 ESP32-C5 协处理器通过 
 
 - [产品页面](https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm)
 - [官方 Wiki](https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/)
-- [硬件参考](docs/zh_CN/hw-reference/user-guide-esp32-p4-nano-wifi6-db.md)
+- [硬件参考](docs/zh_CN/hw-reference/user-guide.md)
 - [BSP README](components/esp32_p4_nano_wifi6_db/README.md)
 - [BSP API 参考](components/esp32_p4_nano_wifi6_db/API.md)
 - [Arduino 示例](examples/Arduino/README.md)

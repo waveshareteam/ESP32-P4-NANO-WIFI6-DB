@@ -12,7 +12,7 @@
     <a href="examples/esp_idf/">🧩 ESP-IDF Examples</a> ·
     <a href="examples/Arduino/">🔧 Arduino Examples</a>
   </p>
-  <img src="assert/ESP32-P4-NANO-WIFI6-DB.jpg" alt="Waveshare ESP32-P4-NANO-WIFI6-DB" width="720">
+  <img src="https://www.waveshare.net/photo/development-board/ESP32-P4-NANO-WIFI6-DB/ESP32-P4-NANO-WIFI6-DB-details-1.jpg" alt="Waveshare ESP32-P4-NANO-WIFI6-DB" width="720">
 </div>
 
 ---
@@ -38,7 +38,7 @@ The board uses ESP32-P4 as its main processor and connects an ESP32-C5 wireless 
 | Board support | Local ESP-IDF BSP component `esp32_p4_nano_wifi6_db`, version `0.0.1` |
 | Schematic | [hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf](hardware/schematics/ESP32-P4-NANO-WIFI6-DB.pdf) |
 
-For complete pin assignments, interface details, and usage notes, see the [Hardware Guide](docs/en/hw-reference/user-guide-esp32-p4-nano-wifi6-db.md).
+For complete pin assignments, interface details, and usage notes, see the [Hardware Guide](docs/en/hw-reference/user-guide.md).
 
 ### ESP-IDF LCD Selection
 
@@ -129,7 +129,7 @@ ESP32-P4 does not include an RF transceiver. Wi-Fi and Bluetooth are provided by
 
 - [Product Page](https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm)
 - [Official Wiki](https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/)
-- [Hardware Guide](docs/en/hw-reference/user-guide-esp32-p4-nano-wifi6-db.md)
+- [Hardware Guide](docs/en/hw-reference/user-guide.md)
 - [BSP README](components/esp32_p4_nano_wifi6_db/README.md)
 - [BSP API Reference](components/esp32_p4_nano_wifi6_db/API.md)
 - [Arduino Examples](examples/Arduino/README.md)

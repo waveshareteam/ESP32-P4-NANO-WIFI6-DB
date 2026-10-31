@@ -513,4 +513,10 @@ bool UartTool::cleanResource(void)
     return true;
 }
 
+// The app is a singleton owned by itself; the registry must not delete it.
+ESP_UTILS_REGISTER_PLUGIN_WITH_CONSTRUCTOR(systems::base::App, UartTool, APP_NAME, []()
+{
+    return std::shared_ptr<UartTool>(UartTool::requestInstance(), [](UartTool *) {});
+})
+
 } // namespace esp_brookesia::apps
