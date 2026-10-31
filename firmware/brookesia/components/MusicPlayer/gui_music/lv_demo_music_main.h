@@ -14,14 +14,14 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "lv_demo_music.h"
-#include "bsp_board_extra.h"
+#include "board.h"
 #if APP_DEMO_MUSIC_ENABLE
 
 /*********************
  *      DEFINES
  *********************/
 
-#define ACTIVE_TRACK_CNT    3
+#define ACTIVE_TRACK_CNT    5
 
 /**********************
  *      TYPEDEFS

@@ -16,7 +16,7 @@
 
 #include "lv_demo_music.h"
 #include "esp_log.h"
-#include "bsp_board_extra.h"
+#include "board.h"
 #include "audio_player.h"
 
 /*********************
@@ -66,9 +66,9 @@ static void play_event_click_cb(lv_event_t * e);
 static void prev_click_event_cb(lv_event_t * e);
 static void next_click_event_cb(lv_event_t * e);
 static void timer_cb(lv_timer_t * t);
+static void audio_state_timer_cb(lv_timer_t * t);
 static void track_load(uint32_t id);
 static void stop_start_anim(lv_timer_t * t);
-static void spectrum_end_cb(lv_anim_t * a);
 static void album_fade_anim_cb(void * var, int32_t v);
 static int32_t get_cos(int32_t deg, int32_t a);
 static int32_t get_sin(int32_t deg, int32_t a);
@@ -92,6 +92,7 @@ static uint32_t bar_rot = 0;
 static uint32_t time_act;
 static lv_timer_t  * stop_start_anim_timer;
 static lv_timer_t  * sec_counter_timer;
+static lv_timer_t  * audio_state_timer;
 static const lv_font_t * font_small;
 static const lv_font_t * font_large;
 static uint32_t track_id;
@@ -106,6 +107,7 @@ static const uint16_t rnd_array[30] = {994, 285, 553, 11, 792, 707, 966, 641, 85
 static file_iterator_instance_t *file_iterator;
 static bool pause = false;
 static bool pause_exit = false;
+static audio_player_state_t last_audio_state = AUDIO_PLAYER_STATE_IDLE;
 
 /**********************
  *      MACROS
@@ -137,6 +139,7 @@ lv_obj_t * lv_demo_music_main_create(lv_obj_t * parent, file_iterator_instance_t
 {
     file_iterator = iterator;
     pause = false;
+    pause_exit = false;
     playing = false;
     spectrum_i = 0;
     spectrum_i_pause = 0;
@@ -252,6 +255,8 @@ lv_obj_t * lv_demo_music_main_create(lv_obj_t * parent, file_iterator_instance_t
 
     sec_counter_timer = lv_timer_create(timer_cb, 1000, NULL);
     lv_timer_pause(sec_counter_timer);
+    last_audio_state = audio_player_get_state();
+    audio_state_timer = lv_timer_create(audio_state_timer_cb, 100, NULL);
 
     /*Animate in the content after the intro time*/
     lv_anim_t a;
@@ -292,13 +297,13 @@ lv_obj_t * lv_demo_music_main_create(lv_obj_t * parent, file_iterator_instance_t
 
     /* Create an intro from a logo + label */
     LV_IMAGE_DECLARE(img_lv_demo_music_logo);
-    lv_obj_t * logo = lv_image_create(lv_screen_active());
+    lv_obj_t * logo = lv_image_create(parent);
     lv_image_set_src(logo, &img_lv_demo_music_logo);
     lv_obj_move_foreground(logo);
     lv_obj_align_to(logo, spectrum_obj, LV_ALIGN_CENTER, 0, 0);
 
 #if LV_DEMO_MUSIC_SQUARE == 0 && LV_DEMO_MUSIC_ROUND == 0
-    lv_obj_t * title = lv_label_create(lv_screen_active());
+    lv_obj_t * title = lv_label_create(parent);
     lv_label_set_text(title, "LVGL Demo\nMusic player");
     lv_obj_set_style_text_align(title, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(title, font_large, 0);
@@ -323,21 +328,45 @@ lv_obj_t * lv_demo_music_main_create(lv_obj_t * parent, file_iterator_instance_t
 
 void lv_demo_music_main_close(void)
 {
-    if(stop_start_anim_timer) lv_timer_del(stop_start_anim_timer);
-    lv_timer_del(sec_counter_timer);
+    if(audio_state_timer) {
+        lv_timer_delete(audio_state_timer);
+        audio_state_timer = NULL;
+    }
+    if(stop_start_anim_timer) {
+        lv_timer_delete(stop_start_anim_timer);
+        stop_start_anim_timer = NULL;
+    }
+    if(sec_counter_timer) {
+        lv_timer_delete(sec_counter_timer);
+        sec_counter_timer = NULL;
+    }
+    if(spectrum_obj && lv_obj_is_valid(spectrum_obj)) {
+        lv_anim_delete(spectrum_obj, spectrum_anim_cb);
+    }
+    for(uint32_t i = 0; i < BAR_CNT; i++) {
+        lv_anim_delete(&start_anim_values[i], start_anim_cb);
+    }
+    playing = false;
+    pause = false;
+    last_audio_state = AUDIO_PLAYER_STATE_IDLE;
 }
 
 
 void lv_demo_music_album_next(bool next)
 {
+    uint32_t track_count = lv_demo_music_get_track_count();
+    if(track_count == 0) {
+        return;
+    }
+
     uint32_t id = track_id;
     if(next) {
         id++;
-        if(id >= ACTIVE_TRACK_CNT) id = 0;
+        if(id >= track_count) id = 0;
     }
     else {
         if(id == 0) {
-            id = ACTIVE_TRACK_CNT - 1;
+            id = track_count - 1;
         }
         else {
             id--;
@@ -354,6 +383,10 @@ void lv_demo_music_album_next(bool next)
 
 void lv_demo_music_play(uint32_t id)
 {
+    if(id >= lv_demo_music_get_track_count()) {
+        return;
+    }
+
     track_load(id);
 
     lv_demo_music_resume();
@@ -361,6 +394,33 @@ void lv_demo_music_play(uint32_t id)
 
 void lv_demo_music_resume(void)
 {
+    if(track_id >= lv_demo_music_get_track_count() || spectrum_len == 0) {
+        return;
+    }
+
+    esp_err_t ret;
+    if (!pause_exit && pause && board_player_is_playing_by_index(file_iterator, track_id)) {
+        LV_LOG_USER("Resume music");
+        ret = audio_player_resume();
+    }
+    else {
+        pause_exit = false;
+        LV_LOG_USER("Music is not playing. Start playing.");
+        ret = board_player_play_index(file_iterator, track_id);
+    }
+
+    if(ret != ESP_OK) {
+        ESP_LOGE("MusicPlayer", "Failed to start track %" LV_PRIu32 ": %s",
+                 track_id, esp_err_to_name(ret));
+        lv_demo_music_pause();
+        pause = false;
+        spectrum_i_pause = 0;
+        time_act = 0;
+        lv_slider_set_value(slider_obj, 0, LV_ANIM_OFF);
+        lv_label_set_text(time_obj, "0:00");
+        return;
+    }
+
     spectrum_i = spectrum_i_pause;
     lv_anim_t a;
     lv_anim_init(&a);
@@ -369,22 +429,15 @@ void lv_demo_music_resume(void)
     lv_anim_set_var(&a, spectrum_obj);
     lv_anim_set_duration(&a, ((spectrum_len - spectrum_i) * 1000) / 30);
     lv_anim_set_playback_duration(&a, 0);
-    lv_anim_set_completed_cb(&a, spectrum_end_cb);
+    /* Spectrum data is only a visualization sample, not the track length. */
+    lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+    lv_anim_set_completed_cb(&a, NULL);
     lv_anim_start(&a);
 
     if(sec_counter_timer) lv_timer_resume(sec_counter_timer);
     lv_slider_set_range(slider_obj, 0, lv_demo_music_get_track_length(track_id));
 
     lv_obj_add_state(play_obj, LV_STATE_CHECKED);
-    if (!pause_exit && pause && bsp_extra_player_is_playing_by_index(file_iterator, track_id)) {
-        LV_LOG_USER("Resume music");
-        audio_player_resume();
-    } else {
-        pause_exit = false;
-        LV_LOG_USER("Music is not playing. Start playing.");
-        bsp_extra_player_play_index(file_iterator, track_id);
-    }
-
     playing = true;
     pause = false;
 }
@@ -400,7 +453,7 @@ void lv_demo_music_pause(void)
     lv_image_set_scale(album_image_obj, LV_SCALE_NONE);
     if(sec_counter_timer) lv_timer_pause(sec_counter_timer);
     lv_obj_remove_state(play_obj, LV_STATE_CHECKED);
-    
+
     audio_player_pause();
 }
 
@@ -517,6 +570,7 @@ static lv_obj_t * create_title_box(lv_obj_t * parent)
 {
 
     /*Create the titles*/
+    bool has_tracks = lv_demo_music_get_track_count() > 0;
     lv_obj_t * cont = lv_obj_create(parent);
     lv_obj_remove_style_all(cont);
     lv_obj_set_height(cont, LV_SIZE_CONTENT);
@@ -526,18 +580,18 @@ static lv_obj_t * create_title_box(lv_obj_t * parent)
     title_label = lv_label_create(cont);
     lv_obj_set_style_text_font(title_label, font_large, 0);
     lv_obj_set_style_text_color(title_label, lv_color_hex(0x504d6d), 0);
-    lv_label_set_text(title_label, lv_demo_music_get_title(track_id));
+    lv_label_set_text(title_label, has_tracks ? lv_demo_music_get_title(track_id) : "No tracks found");
     lv_obj_set_height(title_label, lv_font_get_line_height(font_large) * 3 / 2);
 
     artist_label = lv_label_create(cont);
     lv_obj_set_style_text_font(artist_label, font_small, 0);
     lv_obj_set_style_text_color(artist_label, lv_color_hex(0x504d6d), 0);
-    lv_label_set_text(artist_label, lv_demo_music_get_artist(track_id));
+    lv_label_set_text(artist_label, has_tracks ? lv_demo_music_get_artist(track_id) : "");
 
     genre_label = lv_label_create(cont);
     lv_obj_set_style_text_font(genre_label, font_small, 0);
     lv_obj_set_style_text_color(genre_label, lv_color_hex(0x8a86b8), 0);
-    lv_label_set_text(genre_label, lv_demo_music_get_genre(track_id));
+    lv_label_set_text(genre_label, has_tracks ? lv_demo_music_get_genre(track_id) : "");
 
     return cont;
 }
@@ -617,11 +671,11 @@ static lv_obj_t * create_ctrl_box(lv_obj_t * parent)
     lv_image_set_src(icon, &img_lv_demo_music_btn_loop);
     lv_obj_set_grid_cell(icon, LV_GRID_ALIGN_END, 5, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-    icon = lv_image_create(cont);
-    lv_image_set_src(icon, &img_lv_demo_music_btn_prev);
-    lv_obj_set_grid_cell(icon, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_add_event_cb(icon, prev_click_event_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_flag(icon, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_t * prev_obj = lv_image_create(cont);
+    lv_image_set_src(prev_obj, &img_lv_demo_music_btn_prev);
+    lv_obj_set_grid_cell(prev_obj, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_add_event_cb(prev_obj, prev_click_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(prev_obj, LV_OBJ_FLAG_CLICKABLE);
 
     play_obj = lv_imagebutton_create(cont);
     lv_imagebutton_set_src(play_obj, LV_IMAGEBUTTON_STATE_RELEASED, NULL, &img_lv_demo_music_btn_play, NULL);
@@ -633,11 +687,20 @@ static lv_obj_t * create_ctrl_box(lv_obj_t * parent)
     lv_obj_add_flag(play_obj, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_width(play_obj, img_lv_demo_music_btn_play.header.w);
 
-    icon = lv_image_create(cont);
-    lv_image_set_src(icon, &img_lv_demo_music_btn_next);
-    lv_obj_set_grid_cell(icon, LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_add_event_cb(icon, next_click_event_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_flag(icon, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_t * next_obj = lv_image_create(cont);
+    lv_image_set_src(next_obj, &img_lv_demo_music_btn_next);
+    lv_obj_set_grid_cell(next_obj, LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_add_event_cb(next_obj, next_click_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(next_obj, LV_OBJ_FLAG_CLICKABLE);
+
+    if(lv_demo_music_get_track_count() == 0) {
+        lv_obj_t * controls[] = {prev_obj, play_obj, next_obj};
+        for(size_t i = 0; i < sizeof(controls) / sizeof(controls[0]); i++) {
+            lv_obj_add_state(controls[i], LV_STATE_DISABLED);
+            lv_obj_remove_flag(controls[i], LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_opa(controls[i], LV_OPA_40, 0);
+        }
+    }
 
     LV_IMAGE_DECLARE(img_lv_demo_music_slider_knob);
     slider_obj = lv_slider_create(cont);
@@ -702,6 +765,11 @@ static lv_obj_t * create_handle(lv_obj_t * parent)
 
 static void track_load(uint32_t id)
 {
+    uint32_t track_count = lv_demo_music_get_track_count();
+    if(id >= track_count) {
+        return;
+    }
+
     spectrum_i = 0;
     time_act = 0;
     spectrum_i_pause = 0;
@@ -710,7 +778,7 @@ static void track_load(uint32_t id)
 
     if(id == track_id) return;
     bool next = false;
-    if((track_id + 1) % ACTIVE_TRACK_CNT == id) next = true;
+    if((track_id + 1) % track_count == id) next = true;
 
     lv_demo_music_list_button_check(track_id, false);
 
@@ -827,6 +895,12 @@ static void spectrum_draw_event_cb(lv_event_t * e)
         lv_opa_t opa = lv_obj_get_style_opa_recursive(obj, LV_PART_MAIN);
         if(opa < LV_OPA_MIN) return;
 
+        /* `spectrum`/`spectrum_len` are only assigned by track_load(). A redraw
+         * that happens before a track is loaded must not read through the
+         * unset pointer: out-of-range amplitudes turn every bar into a huge
+         * triangle and flood the panel with BAR_COLOR2 (blue). */
+        if(spectrum == NULL || spectrum_len == 0 || spectrum_i >= spectrum_len) return;
+
         lv_point_t center;
         lv_area_t obj_coords;
         lv_obj_get_coords(obj, &obj_coords);
@@ -898,6 +972,11 @@ static void spectrum_draw_event_cb(lv_event_t * e)
             else draw_dsc.color = lv_color_mix(BAR_COLOR2, BAR_COLOR1,
                                                       ((v - BAR_COLOR1_STOP) * 255) / (BAR_COLOR2_STOP - BAR_COLOR1_STOP));
 
+            /* Bound the bar radius so a corrupt amplitude can never paint over
+             * the whole screen. Legitimate amplitudes stay well below this. */
+            const uint32_t v_limit = (uint32_t)LV_MAX(lv_obj_get_width(obj), lv_obj_get_height(obj));
+            if(v > v_limit) v = v_limit;
+
             uint32_t di = deg + deg_space;
 
             int32_t x1_out = get_cos(di, v);
@@ -939,6 +1018,8 @@ static void spectrum_anim_cb(void * a, int32_t v)
     spectrum_i = v;
     lv_obj_invalidate(obj);
 
+    if(spectrum == NULL || spectrum_len == 0 || spectrum_i >= spectrum_len) return;
+
     static uint32_t bass_cnt = 0;
     static int32_t last_bass = -1000;
     static int32_t dir = 1;
@@ -974,7 +1055,8 @@ static lv_obj_t * album_image_create(lv_obj_t * parent)
     lv_obj_t * img;
     img = lv_image_create(parent);
 
-    switch(track_id) {
+    /* Reuse the three bundled covers and spectra for all five tracks. */
+    switch(track_id % 3) {
         case 2:
             lv_image_set_src(img, &img_lv_demo_music_cover_3);
             spectrum = spectrum_3;
@@ -1042,15 +1124,23 @@ static void timer_cb(lv_timer_t * t)
     lv_slider_set_value(slider_obj, time_act, LV_ANIM_ON);
 }
 
-static void spectrum_end_cb(lv_anim_t * a)
+static void audio_state_timer_cb(lv_timer_t * t)
 {
-    LV_UNUSED(a);
-    lv_demo_music_album_next(true);
+    LV_UNUSED(t);
+    audio_player_state_t state = audio_player_get_state();
+
+    /* Advance only after the decoder reaches the real end of the file. */
+    if(playing && last_audio_state == AUDIO_PLAYER_STATE_PLAYING &&
+       state == AUDIO_PLAYER_STATE_IDLE) {
+        lv_demo_music_album_next(true);
+    }
+    last_audio_state = state;
 }
 
 static void stop_start_anim(lv_timer_t * t)
 {
     LV_UNUSED(t);
+    stop_start_anim_timer = NULL;
     start_anim = false;
     lv_obj_refresh_ext_draw_size(spectrum_obj);
 }

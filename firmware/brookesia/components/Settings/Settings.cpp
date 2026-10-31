@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "Settings.hpp"
+#include "ui/SettingsUI.hpp"
 #include "lvgl.h"
 #include "esp_brookesia.hpp"
-#include "esp_event.h"
-#include "esp_netif.h"
 #include "esp_sntp.h"
-#include "esp_wifi.h"
+#include <atomic>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <time.h>
 #ifdef ESP_UTILS_LOG_TAG
@@ -32,11 +32,8 @@ LV_IMG_DECLARE(img_app_settings);
 
 namespace esp_brookesia::apps
 {
-    static constexpr int SETTINGS_PAGE_MARGIN = 40;
-    static constexpr int SETTINGS_LIST_WIDTH = BSP_LCD_H_RES - SETTINGS_PAGE_MARGIN * 2;
-    static constexpr int SETTINGS_LIST_HEIGHT = BSP_LCD_V_RES - 220;
-    static constexpr int SETTINGS_ROW_HEIGHT = 88;
-    static bool s_time_sync_started = false;
+    // Set from both the app task and the Wi-Fi service publisher task.
+    static std::atomic<bool> s_time_sync_started{false};
     static bool s_time_synced = false;
 
     static void time_sync_notification_cb(struct timeval *tv)
@@ -50,26 +47,25 @@ namespace esp_brookesia::apps
 
     static void start_time_sync_once()
     {
-        if (s_time_sync_started || esp_sntp_enabled()) {
+        if (esp_sntp_enabled() || s_time_sync_started.exchange(true)) {
             return;
         }
 
-        // Time sync is started lazily after Wi-Fi obtains an IP address, which avoids
-        // SNTP retries before the network stack is ready.
+        // Start SNTP only after the network stack has obtained an address.
+        // This avoids retries while Wi-Fi is still connecting.
         esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
         esp_sntp_setservername(0, "ntp.aliyun.com");
         esp_sntp_set_time_sync_notification_cb(time_sync_notification_cb);
         esp_sntp_init();
-        s_time_sync_started = true;
         ESP_UTILS_LOGI("SNTP time sync started");
     }
 
-    static void wifi_time_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+    // Runs in the Wi-Fi service publisher task.
+    static void wifi_time_event_handler(const adf_event_t *event, void *ctx)
     {
-        (void)arg;
-        (void)event_data;
+        (void)ctx;
 
-        if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        if (event->event_id == BOARD_WIFI_EVENT_STA_GOT_IP) {
             start_time_sync_once();
         }
     }
@@ -85,9 +81,9 @@ namespace esp_brookesia::apps
         return _instance;
     }
 
-    Settings::Settings(bool use_status_bar, bool use_navigation_bar) : App("Settings", &img_app_settings, true, use_status_bar, use_navigation_bar),
-                                                                       list1(nullptr),
-                                                                       active_page(ActivePage::None)
+    Settings::Settings(bool use_status_bar, bool use_navigation_bar)
+        : App("Settings", &img_app_settings, true, use_status_bar, use_navigation_bar),
+          page_root(nullptr), list1(nullptr), active_page(ActivePage::None)
     {
     }
 
@@ -97,98 +93,59 @@ namespace esp_brookesia::apps
 
     void Settings::create_settings_ui()
     {
+        destroy_settings_ui();
         lv_obj_clean(lv_scr_act());
-        list1 = nullptr;
 
-        lv_style_init(&style_list);
-        lv_style_init(&style_list_btn);
-        lv_style_init(&style_list_text);
-        lv_style_init(&style_list_btn_pressed);
+        // On the first run the core only moves the screen to the visual area after run() returns.
+        // Move it now so the round layout measures the screen where it will be shown.
+        const lv_area_t &visual_area = getVisualArea();
+        lv_obj_set_pos(lv_scr_act(), visual_area.x1, visual_area.y1);
 
-        // List, row, and text styles are recreated whenever the settings root is shown.
-        lv_style_set_pad_all(&style_list, 5);
-        lv_style_set_pad_row(&style_list, 2);
-        lv_style_set_border_width(&style_list, 0);
-        lv_style_set_radius(&style_list, 10);
-        lv_style_set_bg_color(&style_list, lv_color_hex(0x000000));
-        lv_style_set_bg_opa(&style_list, LV_OPA_COVER);
+        page_root = settings_ui::create_page(lv_scr_act(), getContentTopInset());
+        settings_ui::create_header(page_root, "Settings");
+        settings_ui::init_list_styles(style_list, style_list_btn, style_list_text, style_list_btn_pressed);
 
-        lv_style_set_height(&style_list_btn, SETTINGS_ROW_HEIGHT);
-        lv_style_set_pad_all(&style_list_btn, 16);
-        lv_style_set_border_width(&style_list_btn, 0);
-        lv_style_set_radius(&style_list_btn, 8);
-        lv_style_set_bg_color(&style_list_btn, lv_color_hex(0x38393A));
-        lv_style_set_text_font(&style_list_btn, &lv_font_montserrat_30);
-        lv_style_set_text_color(&style_list_btn, lv_color_hex(0xFFFFFF));
-        lv_style_set_border_width(&style_list_btn, 1);
-        lv_style_set_border_side(&style_list_btn, LV_BORDER_SIDE_BOTTOM);
-        lv_style_set_border_color(&style_list_btn, lv_color_hex(0x505050));
+        list1 = settings_ui::create_content_list(page_root);
+        lv_obj_add_style(list1, &style_list, LV_PART_MAIN);
 
-        lv_style_set_text_font(&style_list_text, &lv_font_montserrat_30);
-        lv_style_set_text_color(&style_list_text, lv_color_hex(0xFFFFFF));
-        lv_style_set_bg_color(&style_list_text, lv_color_hex(0x000000));
-        lv_style_set_bg_opa(&style_list_text, LV_OPA_COVER);
-        lv_style_set_pad_all(&style_list_text, 10);
-        lv_style_set_pad_bottom(&style_list_text, 5);
-
-        lv_style_set_bg_color(&style_list_btn_pressed, lv_color_hex(0x505050));
-        lv_style_set_text_color(&style_list_btn_pressed, lv_color_hex(0xFFFFFF));
-        lv_style_set_border_color(&style_list_btn_pressed, lv_color_hex(0x505050));
-
-        lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), LV_PART_MAIN);
-        lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, LV_PART_MAIN);
-
-        list1 = lv_list_create(lv_scr_act());
-        lv_obj_add_style(list1, &style_list, 0);
-        lv_obj_set_size(list1, SETTINGS_LIST_WIDTH, SETTINGS_LIST_HEIGHT);
-        lv_obj_center(list1);
-        lv_obj_set_scrollbar_mode(list1, LV_SCROLLBAR_MODE_OFF);
-
-        lv_obj_t *text_obj = nullptr;
-        text_obj = lv_list_add_text(list1, "Wireless");
-        lv_obj_add_style(text_obj, &style_list_text, 0);
+        settings_ui::add_section(list1, "Wireless", style_list_text);
         add_button_with_arrow(&WIFI, "WLAN");
-        // add_button_with_arrow(&BLE, "Bluetooth");
 
-        text_obj = lv_list_add_text(list1, "Media");
-        lv_obj_add_style(text_obj, &style_list_text, 0);
+        settings_ui::add_section(list1, "Media", style_list_text);
         add_button_with_arrow(&sound, "Sound");
         add_button_with_arrow(&backlights, "Display");
 
-        text_obj = lv_list_add_text(list1, "More");
-        lv_obj_add_style(text_obj, &style_list_text, 0);
+        settings_ui::add_section(list1, "More", style_list_text);
         add_button_with_arrow(&info, "About");
     }
 
     void Settings::destroy_settings_ui()
     {
-        if (list1)
+        if (page_root != nullptr)
         {
-            lv_obj_del(list1);
+            lv_obj_del(page_root);
+            page_root = nullptr;
             list1 = nullptr;
-            lv_style_reset(&style_list);
-            lv_style_reset(&style_list_btn);
-            lv_style_reset(&style_list_text);
-            lv_style_reset(&style_list_btn_pressed);
+            settings_ui::reset_list_styles(style_list, style_list_btn, style_list_text, style_list_btn_pressed);
         }
     }
 
     void Settings::add_button_with_arrow(const void *icon, const char *text)
     {
         lv_obj_t *btn = lv_list_add_button(list1, icon, text);
-        lv_obj_add_style(btn, &style_list_btn, 0);
+        lv_obj_add_style(btn, &style_list_btn, LV_PART_MAIN);
         lv_obj_add_style(btn, &style_list_btn_pressed, LV_STATE_PRESSED);
+        settings_ui::use_ellipsis_for_button_label(btn);
         lv_obj_add_event_cb(btn, event_handler_cb, LV_EVENT_CLICKED, this);
 
-        lv_obj_t *arrow_img = lv_img_create(btn);
-        lv_img_set_src(arrow_img, &arrow);
-        lv_obj_align(arrow_img, LV_ALIGN_RIGHT_MID, -10, 0);
+        lv_obj_t *arrow_img = lv_image_create(btn);
+        lv_image_set_src(arrow_img, &arrow);
     }
 
     void Settings::event_handler_cb(lv_event_t *e)
     {
         Settings *instance = static_cast<Settings *>(lv_event_get_user_data(e));
-        if (instance)
+        if (instance != nullptr)
         {
             instance->event_handler(e);
         }
@@ -197,8 +154,8 @@ namespace esp_brookesia::apps
     void Settings::open_page_async_cb(void *user_data)
     {
         const char *page_name = static_cast<const char *>(user_data);
-        Settings *instance = Settings::requestInstance(true, false);
-        if (instance && page_name)
+        Settings *instance = Settings::requestInstance();
+        if (instance != nullptr && page_name != nullptr)
         {
             instance->open_page(page_name);
         }
@@ -206,29 +163,29 @@ namespace esp_brookesia::apps
 
     void Settings::event_handler(lv_event_t *e)
     {
-        lv_event_code_t code = lv_event_get_code(e);
-        if (code == LV_EVENT_CLICKED)
-        {
-            lv_obj_t *obj = static_cast<lv_obj_t *>(lv_event_get_target(e));
-            const char *txt = lv_list_get_button_text(list1, obj);
-            ESP_UTILS_LOGI("Clicked: %s", txt);
+        if (lv_event_get_code(e) != LV_EVENT_CLICKED) {
+            return;
+        }
 
-            if (strcmp(txt, "WLAN") == 0)
-            {
-                lv_async_call(open_page_async_cb, (void *)"WLAN");
-            }
-            else if (strcmp(txt, "Sound") == 0)
-            {
-                lv_async_call(open_page_async_cb, (void *)"Sound");
-            }
-            else if (strcmp(txt, "Display") == 0)
-            {
-                lv_async_call(open_page_async_cb, (void *)"Display");
-            }
-            else if (strcmp(txt, "About") == 0)
-            {
-                lv_async_call(open_page_async_cb, (void *)"About");
-            }
+        lv_obj_t *obj = static_cast<lv_obj_t *>(lv_event_get_target(e));
+        const char *txt = lv_list_get_button_text(list1, obj);
+        ESP_UTILS_LOGI("Clicked: %s", txt);
+
+        if (strcmp(txt, "WLAN") == 0)
+        {
+            lv_async_call(open_page_async_cb, (void *)"WLAN");
+        }
+        else if (strcmp(txt, "Sound") == 0)
+        {
+            lv_async_call(open_page_async_cb, (void *)"Sound");
+        }
+        else if (strcmp(txt, "Display") == 0)
+        {
+            lv_async_call(open_page_async_cb, (void *)"Display");
+        }
+        else if (strcmp(txt, "About") == 0)
+        {
+            lv_async_call(open_page_async_cb, (void *)"About");
         }
     }
 
@@ -239,27 +196,66 @@ namespace esp_brookesia::apps
         if (strcmp(page_name, "WLAN") == 0)
         {
             active_page = ActivePage::Wlan;
-            auto wlan = WlanPage::requestInstance(true, false);
-            wlan->run();
+            WlanPage::requestInstance(false, false)->run();
         }
         else if (strcmp(page_name, "Sound") == 0)
         {
             active_page = ActivePage::Sound;
-            auto sound = SoundPage::requestInstance(true, false);
-            sound->run();
+            SoundPage::requestInstance(false, false)->run();
         }
         else if (strcmp(page_name, "Display") == 0)
         {
             active_page = ActivePage::Display;
-            auto display = DisplayPage::requestInstance(true, false);
-            display->run();
+            DisplayPage::requestInstance(false, false)->run();
         }
         else if (strcmp(page_name, "About") == 0)
         {
             active_page = ActivePage::About;
-            auto about = AboutPage::requestInstance(true, false);
-            about->run();
+            AboutPage::requestInstance(false, false)->run();
         }
+    }
+
+    void Settings::close_active_page()
+    {
+        switch (active_page)
+        {
+        case ActivePage::Wlan:
+            WlanPage::requestInstance(false, false)->close();
+            break;
+        case ActivePage::Sound:
+            SoundPage::requestInstance(false, false)->close();
+            break;
+        case ActivePage::Display:
+            DisplayPage::requestInstance(false, false)->close();
+            break;
+        case ActivePage::About:
+            AboutPage::requestInstance(false, false)->close();
+            break;
+        case ActivePage::None:
+        default:
+            break;
+        }
+        active_page = ActivePage::None;
+    }
+
+    lv_coord_t Settings::getContentTopInset()
+    {
+        // The core only shrinks the app screen for an opaque, fixed status bar. The phone
+        // stylesheets use a transparent one that floats over the app, so reserve its height here.
+        if (getActiveConfig().status_bar_visual_mode != systems::phone::StatusBar::VisualMode::SHOW_FIXED) {
+            return 0;
+        }
+        const auto &status_bar = getSystem()->getDisplay().getData().status_bar.data.main;
+        if (status_bar.background_color.opacity == LV_OPA_COVER) {
+            return 0;
+        }
+        return static_cast<lv_coord_t>(status_bar.size.height);
+    }
+
+    void Settings::showRootPage()
+    {
+        close_active_page();
+        create_settings_ui();
     }
 
     int Settings::pmu_register_read(uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint8_t len)
@@ -298,7 +294,7 @@ namespace esp_brookesia::apps
     {
         ESP_UTILS_LOGD("Run");
         active_page = ActivePage::None;
-        if (list1 == nullptr)
+        if (page_root == nullptr)
         {
             create_settings_ui();
         }
@@ -308,31 +304,18 @@ namespace esp_brookesia::apps
     bool Settings::back(void)
     {
         ESP_UTILS_LOGD("Back");
+        if (active_page != ActivePage::None)
+        {
+            showRootPage();
+            return true;
+        }
         return notifyCoreClosed();
     }
 
     bool Settings::close(void)
     {
         ESP_UTILS_LOGD("Close");
-        switch (active_page)
-        {
-        case ActivePage::Wlan:
-            WlanPage::requestInstance(true, false)->close();
-            break;
-        case ActivePage::Sound:
-            SoundPage::requestInstance(true, false)->close();
-            break;
-        case ActivePage::Display:
-            DisplayPage::requestInstance(true, false)->close();
-            break;
-        case ActivePage::About:
-            AboutPage::requestInstance(true, false)->close();
-            break;
-        case ActivePage::None:
-        default:
-            break;
-        }
-        active_page = ActivePage::None;
+        close_active_page();
         destroy_settings_ui();
         return true;
     }
@@ -340,8 +323,7 @@ namespace esp_brookesia::apps
     bool Settings::init()
     {
         ESP_UTILS_LOGD("Init");
-        initWifi();
-
+        subscribeWifiEvents();
         return true;
     }
 
@@ -363,68 +345,35 @@ namespace esp_brookesia::apps
         return true;
     }
 
-    esp_err_t Settings::initWifi()
+    esp_err_t Settings::subscribeWifiEvents()
     {
-        static bool netif_initialized = false;
-        static bool event_loop_initialized = false;
-        static bool wifi_initialized = false;
-        static bool time_event_handler_registered = false;
-        static esp_netif_t *sta_netif = nullptr;
-
-        if (!netif_initialized) {
-            esp_err_t ret = esp_netif_init();
-            if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
-                ESP_UTILS_LOGE("esp_netif_init failed: %s", esp_err_to_name(ret));
-                return ret;
-            }
-            netif_initialized = true;
+        static bool subscribed = false;
+        if (subscribed) {
+            return ESP_OK;
         }
 
-        if (!event_loop_initialized) {
-            esp_err_t ret = esp_event_loop_create_default();
-            if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
-                ESP_UTILS_LOGE("esp_event_loop_create_default failed: %s", esp_err_to_name(ret));
-                return ret;
-            }
-            event_loop_initialized = true;
-        }
-
-        if (!sta_netif) {
-            sta_netif = esp_netif_create_default_wifi_sta();
-            if (!sta_netif) {
-                ESP_UTILS_LOGE("esp_netif_create_default_wifi_sta failed");
-                return ESP_FAIL;
-            }
-        }
-
-        if (!wifi_initialized) {
-            wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-            esp_err_t ret = esp_wifi_init(&cfg);
-            if (ret != ESP_OK) {
-                ESP_UTILS_LOGE("esp_wifi_init failed: %s", esp_err_to_name(ret));
-                return ret;
-            }
-            wifi_initialized = true;
-        }
-
-        if (!time_event_handler_registered) {
-            esp_err_t ret = esp_event_handler_register(
-                IP_EVENT,
-                IP_EVENT_STA_GOT_IP,
-                &wifi_time_event_handler,
-                nullptr);
-            if (ret != ESP_OK) {
-                ESP_UTILS_LOGE("Register time sync event handler failed: %s", esp_err_to_name(ret));
-                return ret;
-            }
-            time_event_handler_registered = true;
-        }
-
-        esp_err_t ret = esp_wifi_set_mode(WIFI_MODE_STA);
+        esp_err_t ret = board_wifi_service_subscribe(
+            BOARD_WIFI_EVENT_STA_GOT_IP, wifi_time_event_handler, nullptr);
         if (ret != ESP_OK) {
-            ESP_UTILS_LOGW("esp_wifi_set_mode returned: %s", esp_err_to_name(ret));
+            ESP_UTILS_LOGE("Subscribe Wi-Fi service events failed: %s", esp_err_to_name(ret));
+            return ret;
         }
+        subscribed = true;
 
+        // Covers Settings being subscribed after the station already obtained an address.
+        if (board_wifi_service_is_connected()) {
+            start_time_sync_once();
+        }
         return ESP_OK;
     }
+
+    // The app is a singleton owned by itself; the registry must not delete it.
+    // Keep the status bar visible: the core then shrinks the app screen below it.
+    ESP_UTILS_REGISTER_PLUGIN_WITH_CONSTRUCTOR(systems::base::App, Settings, "Settings", []()
+    {
+        return std::shared_ptr<Settings>(
+                   Settings::requestInstance(/* use_status_bar */ true, /* use_navigation_bar */ false),
+                   [](Settings *) {});
+    })
+
 } // namespace esp_brookesia::apps
