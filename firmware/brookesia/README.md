@@ -1,36 +1,39 @@
 # ESP-Brookesia Factory Firmware
 
-[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.5%2B%20%7C%20v6.1-E7352C?logo=espressif)](https://github.com/espressif/esp-idf/releases)
+[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.6%2B%20%7C%20v6.1-E7352C?logo=espressif)](https://github.com/espressif/esp-idf/releases)
 [![Target](https://img.shields.io/badge/target-ESP32--P4-1F6FEB)](https://www.espressif.com/en/products/socs/esp32-p4)
 [![LVGL](https://img.shields.io/badge/LVGL-9.4.0-2AA9E0?logo=lvgl)](https://lvgl.io/)
 
 English | [简体中文](README_CN.md)
 
 This directory contains the ESP-Brookesia firmware source for the
-**Waveshare ESP32-P4-WIFI6-DB-POE-ETH**. It drives an external MIPI-DSI touch
+**Waveshare ESP32-P4-NANO-WIFI6-DB**. It drives an external MIPI-DSI touch
 panel, the ES8311 audio codec, the OV5647 camera, the SD card, ESP32-C5 hosted
-Wi-Fi and IP101 Ethernet.
+Wi-Fi and IP101GRI Ethernet.
 
 ## Platform configuration
 
 | Item | Configuration |
 | --- | --- |
-| Host MCU | ESP32-P4NRW32X, 32 MB flash, 32 MB PSRAM |
-| Display / touch | Waveshare [5](https://www.waveshare.com/5-dsi-touch-a.htm), [7](https://www.waveshare.com/7-dsi-touch-a.htm), [8](https://www.waveshare.com/8-dsi-touch-a.htm) and [10.1](https://www.waveshare.com/10.1-dsi-touch-a.htm)-inch portrait panels, GT911 touch |
-| Framework | ESP-IDF v6.1 (locked in `dependencies.lock`); `idf_component.yml` requires `>=5.5` |
-| UI | LVGL 9.4.0 with the local ESP-Brookesia core 0.6.0-beta2 |
-| BSP | Local `esp32_p4_wifi6_db_poe_eth` component in [`components/`](../../components/esp32_p4_wifi6_db_poe_eth/) |
-| LVGL adapter | `espressif/esp_lvgl_adapter` 0.6.3 |
-| Wireless | ESP32-C5 over SDIO using ESP-Hosted 3.0.10 / `esp_wifi_remote` 1.6.5 |
-| Ethernet | IP101 RMII PHY through `espressif/ethernet_init` 1.4.1 |
-| Voice assistant | `espressif/esp_xiaozhi` 0.1.1, ESP-SR 2.4.7 and xiaozhi-fonts 1.6.0 |
-| Media | `espressif/esp_extractor` 1.0.7, `esp_new_jpeg` 1.0.2, `esp_video` 2.5.0 |
+| Host MCU | ESP32-P4NRW32X, 16 MB flash (QIO), package-integrated PSRAM (HEX mode, 250 MHz) |
+| Display / touch | Waveshare [5](https://www.waveshare.com/5-dsi-touch-a.htm), [7](https://www.waveshare.com/7-dsi-touch-a.htm), [8](https://www.waveshare.com/8-dsi-touch-a.htm) and [10.1](https://www.waveshare.com/10.1-dsi-touch-a.htm)-inch DSI-TOUCH portrait panels, GT911 touch |
+| Framework | ESP-IDF v6.1, v5.6 minimum |
+| Board support | `waveshare/waveshare_boards` 0.1.3, board `esp32_p4_nano_wifi6_db` |
+| UI | LVGL 9.4 graphics library with the ESP-Brookesia phone-style system UI |
+| Display pipeline | Two-lane MIPI-DSI, DPI frame buffers, PPA hardware scaling and rotation |
+| Wireless | Wi-Fi 6 and Bluetooth LE from the ESP32-C5 coprocessor over SDIO (ESP-Hosted) |
+| Ethernet | IP101GRI RMII PHY, 100 Mbit Ethernet with DHCP |
+| Audio | ES8311 codec, I2S playback and capture, MP3 and Opus coding |
+| Voice assistant | Xiaozhi voice interaction: WakeNet wake word, VAD, Opus uplink/downlink, server transcript and TTS |
+| Media | MIPI-CSI camera capture, AVI demuxing, hardware JPEG decoding |
 
-Select the panel under `menuconfig` → the BSP's LCD type option
-(`CONFIG_BSP_LCD_TYPE_*`); the default is the 10.1-inch 800 x 1280 panel. See
-the [hardware reference guide](../../docs/en/hw-reference/user-guide.md)
-for interfaces and pin assignments. The ESP32-P4/ESP32-C5 companion project is
-[`15_wifi_iperf`](../../examples/esp-idf/15_wifi_iperf/).
+The panel is selected by an ESP Board Manager DSI overlay instead of an LCD type
+chosen in `menuconfig`; an overlay that needs a non-default initialization table
+sets `CONFIG_BSP_LCD_TYPE_*` through a prompt-less Kconfig. See
+[Board configuration](#board-configuration) for the command. See the
+[hardware reference guide](../../docs/en/hw-reference/user-guide.md)
+for interfaces and pin assignments. Standalone examples for the individual
+peripherals are in [ESP-IDF examples](../../examples/esp_idf/).
 
 ## Applications
 
@@ -48,6 +51,7 @@ for interfaces and pin assignments. The ESP32-P4/ESP32-C5 companion project is
     <td align="center"><img src="components/Settings/assets/img_app_settings.png" width="64" alt="Settings icon"><br><b>Settings</b></td>
     <td align="center"><img src="components/Ethernet/assets/img_app_ethernet.png" width="64" alt="Ethernet icon"><br><b>Ethernet</b></td>
     <td align="center"><img src="components/XiaozhiApp/assets/img_app_xiaozhi.png" width="64" alt="AIChats icon"><br><b>AIChats</b></td>
+    <td align="center"><img src="components/UartTool/assets/img_app_uart_tool.png" width="64" alt="UART icon"><br><b>UART</b></td>
   </tr>
 </table>
 
@@ -61,14 +65,15 @@ for interfaces and pin assignments. The ESP32-P4/ESP32-C5 companion project is
 | Camera | OV5647 MIPI CSI preview, scaled by the PPA to fill the panel | OV5647, `esp_video` |
 | VideoPlayer | Full-screen SD-card AVI/MJPEG playback in the video's own orientation, with PCM audio | SD card, JPEG/PPA, ES8311 output |
 | Settings | WLAN scan/connect, sound, display brightness, SNTP time and device information; brightness and volume are kept in NVS | ESP32-C5 hosted Wi-Fi |
-| Ethernet | Link state, IPv4 address, netmask, gateway, MAC address and PHY of the IP101 port | IP101, DHCP server on the network |
+| UART | Serial terminal with configurable TX/RX pins and baud rate, in text or hex view | UART pins on the expansion headers |
+| Ethernet | Link state, IPv4 address, netmask, gateway, MAC address and PHY of the IP101GRI port | IP101GRI, DHCP server on the network |
 | AIChats | Network check, Xiaozhi activation, WakeNet wake word, VAD, Opus uplink/downlink, server transcript and TTS | Wi-Fi or Ethernet, `model`/`storage` images, ES8311 |
 
 ## Build
 
 ### Requirements
 
-Use ESP-IDF v6.1 (or v5.5 or later) with the `esp32p4` toolchain. Network access
+Use ESP-IDF v6.1 (or v5.6 or later) with the `esp32p4` toolchain. Network access
 to the ESP Component Registry is required. Use a data-capable USB cable for
 flashing.
 
@@ -80,6 +85,18 @@ idf.py --version
 idf.py set-target esp32p4
 idf.py build
 ```
+
+### Board configuration
+
+Building the firmware as shipped needs no extra step. To change the panel, run
+`idf.py bmgr` with the board and the overlay that matches the connected panel:
+
+```sh
+idf.py bmgr -b esp32_p4_nano_wifi6_db -a <overlay>
+```
+
+`bmgr` backs up and removes the existing `sdkconfig` so the selected board
+defaults apply, so run `idf.py build` again afterwards.
 
 ### First full flash and partition changes
 
@@ -111,17 +128,18 @@ xiaozhi-fonts, bundled music or prompt audio.
 
 ### Flash partitions
 
-The layout is defined in `partitions.csv`; the partition table is at `0x8000`:
+The layout is defined in `partitions.csv`; the partition table is at `0x9000`
+(16 MB flash):
 
 | Name | Type | Offset | Size | Purpose |
 | --- | --- | --- | --- | --- |
-| `nvsfactory` | data / nvs | `0x9000` | 200 KiB | Factory NVS data |
-| `nvs` | data / nvs | `0x3B000` | 840 KiB | Wi-Fi, app settings and Xiaozhi state |
-| `otadata` | data / ota | `0x10D000` | 8 KiB | OTA data (reserved) |
-| `phy_init` | data / phy | `0x10F000` | 4 KiB | PHY calibration data |
-| `model` | data / spiffs | `0x110000` | 960 KiB | ESP-SR speech models (`srmodels.bin`) |
+| `nvsfactory` | data / nvs | `0xA000` | 200 KiB | Factory NVS data |
+| `nvs` | data / nvs | `0x3C000` | 840 KiB | Wi-Fi, app settings and Xiaozhi state |
+| `otadata` | data / ota | `0x10E000` | 8 KiB | OTA data (reserved) |
+| `phy_init` | data / phy | `0x110000` | 4 KiB | PHY calibration data |
+| `model` | data / spiffs | `0x111000` | 956 KiB | ESP-SR speech models (`srmodels.bin`) |
 | `factory` | app / factory | `0x200000` | 8 MiB | Application |
-| `storage` | data / spiffs | `0xA00000` | 4 MiB | Music, Xiaozhi prompts and font (`storage.bin`) |
+| `storage` | data / spiffs | `0xA00000` | 6 MiB | Music, Xiaozhi prompts and font (`storage.bin`) |
 
 ## AIChats / Xiaozhi
 
@@ -162,7 +180,9 @@ playback chain converts server audio as needed for the codec output.
 
 ## Camera and media
 
-Camera runs the OV5647 in its 800 x 640 binned mode. The PPA cover-fills the
+Camera runs the OV5647 in the default MIPI format selected by
+`CONFIG_CAMERA_OV5647_MIPI_DEFAULT_FMT_*`, currently RAW8 800 x 800 at 50 fps.
+The PPA cover-fills the
 panel with the frame, cropping the source so that the scale factor lands on the
 PPA's 1/16 steps.
 

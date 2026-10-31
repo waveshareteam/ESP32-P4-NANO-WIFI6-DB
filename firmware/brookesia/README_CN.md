@@ -1,34 +1,36 @@
 # ESP-Brookesia 出厂固件
 
-[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.5%2B%20%7C%20v6.1-E7352C?logo=espressif)](https://github.com/espressif/esp-idf/releases)
+[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.6%2B%20%7C%20v6.1-E7352C?logo=espressif)](https://github.com/espressif/esp-idf/releases)
 [![Target](https://img.shields.io/badge/target-ESP32--P4-1F6FEB)](https://www.espressif.com/en/products/socs/esp32-p4)
 [![LVGL](https://img.shields.io/badge/LVGL-9.4.0-2AA9E0?logo=lvgl)](https://lvgl.io/)
 
 [English](README.md) | 简体中文
 
-本目录是 **Waveshare ESP32-P4-WIFI6-DB-POE-ETH** 的 ESP-Brookesia 固件源码，
+本目录是 **Waveshare ESP32-P4-NANO-WIFI6-DB** 的 ESP-Brookesia 固件源码，
 支持外接 MIPI-DSI 触摸屏、ES8311 音频编解码器、OV5647 摄像头、SD 卡、
-ESP32-C5 Hosted Wi-Fi 和 IP101 以太网。
+ESP32-C5 Hosted Wi-Fi 和 IP101GRI 以太网。
 
 ## 平台配置
 
 | 项目 | 配置 |
 | --- | --- |
-| 主控 | ESP32-P4NRW32X，32 MB Flash，32 MB PSRAM |
-| 显示 / 触摸 | 微雪 [5](https://www.waveshare.net/shop/5-DSI-TOUCH-A.htm)、[7](https://www.waveshare.net/shop/7-DSI-TOUCH-A.htm)、[8](https://www.waveshare.net/shop/8-DSI-TOUCH-A.htm)、[10.1](https://www.waveshare.net/shop/10.1-DSI-TOUCH-A.htm) 英寸竖屏，GT911 触摸 |
-| 框架 | ESP-IDF v6.1（锁定于 `dependencies.lock`）；`idf_component.yml` 要求 `>=5.5` |
-| UI | LVGL 9.4.0，本地 ESP-Brookesia core 0.6.0-beta2 |
-| BSP | [`components/`](../../components/esp32_p4_wifi6_db_poe_eth/) 下的本地 `esp32_p4_wifi6_db_poe_eth` 组件 |
-| LVGL 适配 | `espressif/esp_lvgl_adapter` 0.6.3 |
-| 无线 | ESP32-C5 经 SDIO 连接，使用 ESP-Hosted 3.0.10 / `esp_wifi_remote` 1.6.5 |
-| 以太网 | IP101 RMII PHY，使用 `espressif/ethernet_init` 1.4.1 |
-| 语音助手 | `espressif/esp_xiaozhi` 0.1.1、ESP-SR 2.4.7、xiaozhi-fonts 1.6.0 |
-| 多媒体 | `espressif/esp_extractor` 1.0.7、`esp_new_jpeg` 1.0.2、`esp_video` 2.5.0 |
+| 主控 | ESP32-P4NRW32X，16 MB Flash（QIO），封装内集成 PSRAM（HEX 模式，250 MHz） |
+| 显示 / 触摸 | 微雪 [5](https://www.waveshare.net/shop/5-DSI-TOUCH-A.htm)、[7](https://www.waveshare.net/shop/7-DSI-TOUCH-A.htm)、[8](https://www.waveshare.net/shop/8-DSI-TOUCH-A.htm)、[10.1](https://www.waveshare.net/shop/10.1-DSI-TOUCH-A.htm) 英寸 DSI-TOUCH 竖屏，GT911 触摸 |
+| 框架 | ESP-IDF v6.1，最低 v5.6 |
+| 板级支持 | `waveshare/waveshare_boards` 0.1.3，板卡 `esp32_p4_nano_wifi6_db` |
+| UI | LVGL 9.4 图形库，ESP-Brookesia 手机式系统 UI |
+| 显示管线 | 双 lane MIPI-DSI，DPI 帧缓冲，PPA 硬件缩放与旋转 |
+| 无线 | ESP32-C5 协处理器经 SDIO 提供 Wi-Fi 6 和 Bluetooth LE（ESP-Hosted） |
+| 以太网 | IP101GRI RMII PHY，百兆以太网，DHCP 获取地址 |
+| 音频 | ES8311 编解码器，I2S 播放与采集，MP3 和 Opus 编解码 |
+| 语音助手 | 小智语音交互：WakeNet 唤醒词、VAD、Opus 上下行、服务端文本与 TTS |
+| 多媒体 | MIPI-CSI 摄像头采集，AVI 解封装，硬件 JPEG 解码 |
 
-在 `menuconfig` 中通过 BSP 的 LCD 类型选项（`CONFIG_BSP_LCD_TYPE_*`）选择屏幕，
-默认是 10.1 英寸 800 x 1280。接口与引脚分配见
+屏幕由 ESP Board Manager 的 DSI overlay 选择，不再在 `menuconfig` 中手动选择 LCD 类型；
+需要非默认初始化表的 overlay 会用无 prompt 的 Kconfig 代为设置 `CONFIG_BSP_LCD_TYPE_*`。
+更换屏幕的命令见[板卡配置](#板卡配置)。接口与引脚分配见
 [硬件参考指南](../../docs/zh_CN/hw-reference/user-guide.md)。
-ESP32-P4 / ESP32-C5 配套工程见 [`15_wifi_iperf`](../../examples/esp-idf/15_wifi_iperf/)。
+其他外设和功能的独立示例见 [ESP-IDF 示例](../../examples/esp_idf/)。
 
 ## 应用
 
@@ -46,6 +48,7 @@ ESP32-P4 / ESP32-C5 配套工程见 [`15_wifi_iperf`](../../examples/esp-idf/15_
     <td align="center"><img src="components/Settings/assets/img_app_settings.png" width="64" alt="Settings 图标"><br><b>Settings</b></td>
     <td align="center"><img src="components/Ethernet/assets/img_app_ethernet.png" width="64" alt="Ethernet 图标"><br><b>Ethernet</b></td>
     <td align="center"><img src="components/XiaozhiApp/assets/img_app_xiaozhi.png" width="64" alt="AIChats 图标"><br><b>AIChats</b></td>
+    <td align="center"><img src="components/UartTool/assets/img_app_uart_tool.png" width="64" alt="UART 图标"><br><b>UART</b></td>
   </tr>
 </table>
 
@@ -59,14 +62,15 @@ ESP32-P4 / ESP32-C5 配套工程见 [`15_wifi_iperf`](../../examples/esp-idf/15_
 | Camera | OV5647 MIPI CSI 预览，由 PPA 缩放铺满屏幕 | OV5647，`esp_video` |
 | VideoPlayer | 全屏播放 SD 卡中的 AVI/MJPEG 视频，按视频自身方向显示，支持 PCM 音频 | SD 卡，JPEG/PPA，ES8311 输出 |
 | Settings | WLAN 扫描/连接、声音、屏幕亮度、SNTP 时间和设备信息；亮度与音量保存在 NVS | ESP32-C5 Hosted Wi-Fi |
-| Ethernet | 显示 IP101 网口的链路状态、IPv4 地址、子网掩码、网关、MAC 地址和 PHY | IP101，网络中的 DHCP 服务器 |
+| UART | 串口收发工具，可配置 TX/RX 引脚和波特率，支持文本与 HEX 两种显示 | 扩展排针上的 UART 引脚 |
+| Ethernet | 显示 IP101GRI 网口的链路状态、IPv4 地址、子网掩码、网关、MAC 地址和 PHY | IP101GRI，网络中的 DHCP 服务器 |
 | AIChats | 网络检查、小智激活、WakeNet 唤醒词、VAD、Opus 上下行、服务端文本和 TTS | Wi-Fi 或以太网，`model`/`storage` 镜像，ES8311 |
 
 ## 编译
 
 ### 环境要求
 
-使用 ESP-IDF v6.1（或 v5.5 及以上）和 `esp32p4` 工具链，需要能访问 ESP 组件仓库。
+使用 ESP-IDF v6.1（或 v5.6 及以上）和 `esp32p4` 工具链，需要能访问 ESP 组件仓库。
 烧录时请使用支持数据传输的 USB 线。
 
 以下命令都在本目录下运行。从仓库根目录开始：
@@ -77,6 +81,18 @@ idf.py --version
 idf.py set-target esp32p4
 idf.py build
 ```
+
+### 板卡配置
+
+按出厂配置编译不需要额外操作。更换屏幕时，用 `idf.py bmgr` 选择板卡和与实际屏幕匹配的
+overlay：
+
+```sh
+idf.py bmgr -b esp32_p4_nano_wifi6_db -a <overlay>
+```
+
+执行 `bmgr` 会备份并删除现有 `sdkconfig`，以便应用所选板卡的默认配置，之后需要重新
+`idf.py build`。
 
 ### 首次完整烧录与分区变更
 
@@ -105,17 +121,17 @@ idf.py -p PORT app-flash monitor
 
 ### Flash 分区
 
-分区布局定义在 `partitions.csv`，分区表位于 `0x8000`：
+分区布局定义在 `partitions.csv`，分区表位于 `0x9000`（16 MB Flash）：
 
 | 名称 | 类型 | 偏移 | 大小 | 用途 |
 | --- | --- | --- | --- | --- |
-| `nvsfactory` | data / nvs | `0x9000` | 200 KiB | 出厂 NVS 数据 |
-| `nvs` | data / nvs | `0x3B000` | 840 KiB | Wi-Fi、应用设置和小智状态 |
-| `otadata` | data / ota | `0x10D000` | 8 KiB | OTA 数据（预留） |
-| `phy_init` | data / phy | `0x10F000` | 4 KiB | PHY 校准数据 |
-| `model` | data / spiffs | `0x110000` | 960 KiB | ESP-SR 语音模型（`srmodels.bin`） |
+| `nvsfactory` | data / nvs | `0xA000` | 200 KiB | 出厂 NVS 数据 |
+| `nvs` | data / nvs | `0x3C000` | 840 KiB | Wi-Fi、应用设置和小智状态 |
+| `otadata` | data / ota | `0x10E000` | 8 KiB | OTA 数据（预留） |
+| `phy_init` | data / phy | `0x110000` | 4 KiB | PHY 校准数据 |
+| `model` | data / spiffs | `0x111000` | 956 KiB | ESP-SR 语音模型（`srmodels.bin`） |
 | `factory` | app / factory | `0x200000` | 8 MiB | 应用程序 |
-| `storage` | data / spiffs | `0xA00000` | 4 MiB | 音乐、小智提示音和字体（`storage.bin`） |
+| `storage` | data / spiffs | `0xA00000` | 6 MiB | 音乐、小智提示音和字体（`storage.bin`） |
 
 ## AIChats / 小智
 
@@ -150,7 +166,8 @@ AIChats 将其转换为 16 kHz 单声道 Opus 上行，播放链路会按需转�
 
 ## 摄像头与多媒体
 
-Camera 使用 OV5647 的 800 x 640 binning 模式。PPA 将画面裁剪后铺满屏幕，
+Camera 使用 OV5647 的默认 MIPI 格式，由 `CONFIG_CAMERA_OV5647_MIPI_DEFAULT_FMT_*` 指定，
+当前是 RAW8 800 x 800、50 fps。PPA 将画面裁剪后铺满屏幕，
 裁剪尺寸按 PPA 1/16 步进的缩放系数计算。
 
 VideoPlayer 只扫描 `/sdcard/avi`，`.avi` 扩展名不区分大小写。SD 卡根目录下的
