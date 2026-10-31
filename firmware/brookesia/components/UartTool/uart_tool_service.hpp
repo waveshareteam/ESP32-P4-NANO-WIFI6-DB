@@ -3,7 +3,10 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <condition_variable>
+#include <deque>
 #include <mutex>
+#include <vector>
 #include "boost/thread.hpp"
 #include "uart_tool_config.hpp"
 
@@ -32,9 +35,12 @@ public:
 
 private:
     void rxThreadLoop();
+    void txThreadLoop();
     void pushRx(const uint8_t *data, size_t len);
+    void releasePins();
 
     static constexpr size_t RING_SIZE = 8192;
+    static constexpr size_t TX_QUEUE_MAX_BYTES = 16 * 1024;
 
     uint8_t *_ring = nullptr;      // PSRAM, guarded by _mutex
     size_t _ring_head = 0;         // write index
@@ -42,7 +48,17 @@ private:
     std::mutex _mutex;
     std::atomic<bool> _exit{false};
     std::atomic<bool> _running{false};
+    bool _driver_installed = false; // GUI-thread state; retained when driver cleanup fails
+    // Pins routed to UART_PORT by the last start(); released after the driver is deleted
+    // so switching modes does not leave the previous transceiver connected.
+    UartToolFixedPins _pins = {GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC};
     boost::thread _rx_thread;
+
+    std::deque<std::vector<uint8_t>> _tx_queue;
+    size_t _tx_queued_bytes = 0;
+    std::mutex _tx_mutex;
+    std::condition_variable _tx_cv;
+    boost::thread _tx_thread;
 };
 
 } // namespace esp_brookesia::apps

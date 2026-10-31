@@ -1,82 +1,142 @@
-"""Generate assets/img_app_uart_tool.c (LVGL9 ARGB8888, byte order B,G,R,A)."""
-import os
+"""Generate the original, geometry-only UART launcher icon."""
+
+from pathlib import Path
+import sys
+
+
+BROOKESIA_DIR = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(BROOKESIA_DIR / "tools"))
+
+from icon_renderer import (  # noqa: E402
+    Canvas,
+    highlighted_gradient,
+    vertical_gradient,
+    write_lvgl_argb8888_c,
+    write_rgba_png,
+)
+
 
 SIZE = 112
-MARGIN = 4
-RADIUS = 24
-BG = (0x1E, 0x88, 0xE5)   # R, G, B
-FG = (0xFF, 0xFF, 0xFF)
+SYMBOL = "img_app_uart_tool"
+ATTRIBUTE = "LV_ATTRIBUTE_IMAGE_IMG_APP_UART_TOOL"
+COMPONENT_DIR = Path(__file__).resolve().parent.parent
+PNG_PATH = COMPONENT_DIR / "assets" / f"{SYMBOL}.png"
+C_PATH = COMPONENT_DIR / "assets" / f"{SYMBOL}.c"
 
 
-def in_round_rect(x, y):
-    if x < MARGIN or y < MARGIN or x >= SIZE - MARGIN or y >= SIZE - MARGIN:
-        return False
-    cx = min(x - MARGIN, SIZE - 1 - MARGIN - x)
-    cy = min(y - MARGIN, SIZE - 1 - MARGIN - y)
-    if cx < RADIUS and cy < RADIUS:
-        dx, dy = RADIUS - cx, RADIUS - cy
-        return dx * dx + dy * dy <= RADIUS * RADIUS
-    return True
+def render_icon() -> bytes:
+    canvas = Canvas(size=SIZE, scale=4)
 
-
-def in_tx_glyph(x, y):
-    # Up arrow head at x-center 38, apex y=26, base y=54, half-width -> 16
-    if 26 <= y <= 54 and abs(x - 38) <= (y - 26) * 16 // 28:
-        return True
-    # Stem
-    return 34 <= x <= 42 and 54 < y <= 86
-
-
-def in_rx_glyph(x, y):
-    # Down arrow head at x-center 74, base y=58, apex y=86
-    if 58 <= y <= 86 and abs(x - 74) <= (86 - y) * 16 // 28:
-        return True
-    # Stem
-    return 70 <= x <= 78 and 26 <= y < 58
-
-
-def pixel(x, y):
-    if not in_round_rect(x, y):
-        return (0, 0, 0, 0)
-    r, g, b = FG if (in_tx_glyph(x, y) or in_rx_glyph(x, y)) else BG
-    return (b, g, r, 0xFF)
-
-
-out_path = os.path.join(os.path.dirname(__file__), "..", "assets", "img_app_uart_tool.c")
-os.makedirs(os.path.dirname(out_path), exist_ok=True)
-with open(out_path, "w", newline="\n") as f:
-    f.write(
-        "#ifdef __has_include\n"
-        "    #if __has_include(\"lvgl.h\")\n"
-        "        #ifndef LV_LVGL_H_INCLUDE_SIMPLE\n"
-        "            #define LV_LVGL_H_INCLUDE_SIMPLE\n"
-        "        #endif\n"
-        "    #endif\n"
-        "#endif\n\n"
-        "#if defined(LV_LVGL_H_INCLUDE_SIMPLE)\n"
-        "    #include \"lvgl.h\"\n"
-        "#else\n"
-        "    #include \"lvgl/lvgl.h\"\n"
-        "#endif\n\n"
-        "#ifndef LV_ATTRIBUTE_MEM_ALIGN\n"
-        "#define LV_ATTRIBUTE_MEM_ALIGN\n"
-        "#endif\n\n"
-        "const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST uint8_t img_app_uart_tool_map[] = {\n"
+    canvas.rounded_rect(
+        (4, 4, 108, 108),
+        24,
+        highlighted_gradient(
+            (82, 163, 229, 255),
+            (42, 82, 126, 255),
+            4,
+            108,
+            (30, 19),
+            78,
+            15,
+        ),
     )
-    for y in range(SIZE):
-        row = []
-        for x in range(SIZE):
-            row += ["0x%02x" % v for v in pixel(x, y)]
-        f.write("  " + ", ".join(row) + ",\n")
-    f.write(
-        "};\n\n"
-        "const lv_image_dsc_t img_app_uart_tool = {\n"
-        "  .header.cf = LV_COLOR_FORMAT_ARGB8888,\n"
-        "  .header.magic = LV_IMAGE_HEADER_MAGIC,\n"
-        "  .header.w = 112,\n"
-        "  .header.h = 112,\n"
-        "  .data_size = 12544 * 4,\n"
-        "  .data = img_app_uart_tool_map,\n"
-        "};\n"
+
+    shell = (
+        (22, 39),
+        (34, 32),
+        (78, 32),
+        (90, 39),
+        (96, 46),
+        (96, 66),
+        (90, 73),
+        (78, 79),
+        (34, 79),
+        (22, 73),
+        (16, 66),
+        (16, 46),
     )
-print("written:", out_path)
+    canvas.rounded_rect((15, 39, 97, 83), 13, (8, 18, 30, 48))
+    canvas.polygon(
+        shell,
+        vertical_gradient(
+            (255, 255, 255, 255),
+            (210, 218, 225, 255),
+            32,
+            79,
+        ),
+    )
+
+    face = (
+        (32, 39),
+        (80, 39),
+        (86, 45),
+        (82, 68),
+        (77, 73),
+        (35, 73),
+        (30, 68),
+        (26, 45),
+    )
+    canvas.polygon(face, (29, 36, 43, 255))
+    canvas.polygon(
+        (
+            (33, 41),
+            (79, 41),
+            (83, 45),
+            (80, 66),
+            (76, 70),
+            (36, 70),
+            (32, 66),
+            (29, 45),
+        ),
+        vertical_gradient(
+            (56, 64, 73, 255),
+            (30, 36, 43, 255),
+            41,
+            70,
+        ),
+    )
+
+    for center_x in (22, 90):
+        canvas.ellipse(
+            (center_x - 7, 49, center_x + 7, 63),
+            vertical_gradient(
+                (70, 79, 88, 255),
+                (23, 29, 35, 255),
+                49,
+                63,
+            ),
+        )
+        canvas.ellipse((center_x - 3.5, 52.5, center_x + 3.5, 59.5), (11, 16, 21, 255))
+
+    pin_positions = [
+        *((x, 50) for x in (38, 47, 56, 65, 74)),
+        *((x, 62) for x in (42.5, 51.5, 60.5, 69.5)),
+    ]
+    for center_x, center_y in pin_positions:
+        canvas.ellipse(
+            (center_x - 3.1, center_y - 2.2, center_x + 3.1, center_y + 4.0),
+            (6, 11, 16, 95),
+        )
+        canvas.ellipse(
+            (center_x - 2.8, center_y - 2.8, center_x + 2.8, center_y + 2.8),
+            vertical_gradient(
+                (255, 255, 255, 255),
+                (203, 211, 218, 255),
+                center_y - 2.8,
+                center_y + 2.8,
+            ),
+        )
+
+    return canvas.rgba_bytes()
+
+
+def main() -> None:
+    rgba = render_icon()
+    write_rgba_png(PNG_PATH, SIZE, SIZE, rgba)
+    write_lvgl_argb8888_c(C_PATH, SYMBOL, ATTRIBUTE, SIZE, SIZE, rgba)
+    print(f"written: {PNG_PATH}")
+    print(f"written: {C_PATH}")
+
+
+if __name__ == "__main__":
+    main()

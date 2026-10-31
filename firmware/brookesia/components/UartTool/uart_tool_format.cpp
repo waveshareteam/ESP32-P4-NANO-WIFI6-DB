@@ -9,17 +9,15 @@
 
 namespace esp_brookesia::apps {
 
-std::string uart_tool_bytes_to_hex(const uint8_t *data, size_t len)
+void uart_tool_bytes_to_hex(const uint8_t *data, size_t len, std::string &out)
 {
     static const char digits[] = "0123456789ABCDEF";
-    std::string out;
-    out.reserve(len * 3);
+    out.resize(len * 3);
     for (size_t i = 0; i < len; i++) {
-        out.push_back(digits[data[i] >> 4]);
-        out.push_back(digits[data[i] & 0x0F]);
-        out.push_back(' ');
+        out[i * 3] = digits[data[i] >> 4];
+        out[i * 3 + 1] = digits[data[i] & 0x0F];
+        out[i * 3 + 2] = ' ';
     }
-    return out;
 }
 
 bool uart_tool_hex_to_bytes(const char *text, std::vector<uint8_t> &out)
@@ -58,19 +56,17 @@ bool uart_tool_hex_to_bytes(const char *text, std::vector<uint8_t> &out)
     }
 }
 
-std::string uart_tool_bytes_to_ascii(const uint8_t *data, size_t len)
+void uart_tool_bytes_to_ascii(const uint8_t *data, size_t len, std::string &out)
 {
-    std::string out;
-    out.reserve(len);
+    out.resize(len);
     for (size_t i = 0; i < len; i++) {
         char c = static_cast<char>(data[i]);
         if (std::isprint(static_cast<unsigned char>(c)) || c == '\r' || c == '\n' || c == '\t') {
-            out.push_back(c);
+            out[i] = c;
         } else {
-            out.push_back('.');
+            out[i] = '.';
         }
     }
-    return out;
 }
 
 } // namespace esp_brookesia::apps
