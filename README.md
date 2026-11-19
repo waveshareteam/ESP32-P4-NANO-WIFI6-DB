@@ -110,7 +110,7 @@ ESP32-P4 does not include an RF transceiver. Wi-Fi and Bluetooth are provided by
 
 [`firmware/brookesia/`](firmware/brookesia/) contains the ESP-Brookesia application firmware source, including the GUI, settings, music player, video player, camera, and other application components.
 
-[`firmware/bin/`](firmware/bin/) provides precompiled firmware for the ESP32-P4 main processor and ESP32-C5 wireless co-processor. They target different chips and use different flash addresses; check the corresponding instructions and firmware versions before flashing. The presence of a firmware file in the repository does not guarantee compatibility with newly resolved dependency versions.
+[`firmware/README.md`](firmware/README.md) provides the ESP32-P4 factory image for the 10.1-DSI-TOUCH-A display and flashing instructions. The ESP32-C5 wireless coprocessor image is available in [`firmware/ESP32-C5/`](firmware/ESP32-C5/).
 
 ## 🗂️ Repository Layout
 
@@ -120,7 +120,7 @@ ESP32-P4 does not include an RF transceiver. Wi-Fi and Bluetooth are provided by
 | [`examples/esp_idf/`](examples/esp_idf/) | ESP-IDF peripheral and feature examples |
 | [`examples/Arduino/`](examples/Arduino/) | Arduino examples and local board definitions |
 | [`firmware/brookesia/`](firmware/brookesia/) | ESP-Brookesia application firmware source |
-| [`firmware/bin/`](firmware/bin/) | Precompiled ESP32-P4 and ESP32-C5 firmware |
+| [`firmware/`](firmware/) | ESP32-P4 display firmware, ESP32-C5 coprocessor firmware and instructions |
 | [`hardware/schematics/`](hardware/schematics/) | Board schematic |
 | [`docs/`](docs/) | Hardware reference and project documentation |
 | [`assert/`](assert/) | Product image used in the documentation |

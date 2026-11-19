@@ -73,7 +73,7 @@ ESP32-P4NRW32X 主处理器负责显示、摄像头、音频、存储、以太�
 
 ## 1.4. 出厂固件
 
-开发板的应用固件基于 ESP-Brookesia，包含显示、触摸、音频、摄像头、视频、Wi-Fi、以太网和小智等功能。功能介绍、使用方法和编译说明见 [Brookesia 固件 README](../../../firmware/brookesia/README_CN.md)。ESP32-P4 主控和 ESP32-C5 协处理器的预编译固件见 [`firmware/bin/`](../../../firmware/bin/)，两者目标芯片和烧录地址不同，烧录前请核对对应说明和固件版本。
+开发板的应用固件基于 ESP-Brookesia，包含显示、触摸、音频、摄像头、视频、Wi-Fi、以太网和小智等功能。功能介绍、使用方法和编译说明见 [Brookesia 固件 README](../../../firmware/brookesia/README_CN.md)。ESP32-P4 主控和 ESP32-C5 协处理器的预编译固件见 [`firmware/`](../../../firmware/)，两者目标芯片和烧录地址不同，烧录前请核对对应说明和固件版本。
 
 # 2. 开始开发应用
 
@@ -301,6 +301,6 @@ GPIO0 和 GPIO1 既引到扩展排针（P2 的 6、8 脚），也接在 32.768 k
 ## 4.2. 软件资源
 
 - [Brookesia 固件](../../../firmware/brookesia/README_CN.md)
-- [预编译固件](../../../firmware/bin/)
+- [预编译固件](../../../firmware/)
 - [ESP-IDF 示例](../../../examples/esp_idf/)和 [Arduino 示例](../../../examples/Arduino/)
 - [官方文档](https://docs.waveshare.net/ESP32-P4-NANO-WIFI6-DB/)和[产品页](https://www.waveshare.net/shop/ESP32-P4-NANO-WIFI6-DB.htm)

@@ -110,7 +110,7 @@ ESP32-P4 本身不集成射频。Wi-Fi 和蓝牙由 ESP32-C5 协处理器通过 
 
 [`firmware/brookesia/`](firmware/brookesia/) 包含 ESP-Brookesia 应用固件源码，包括图形界面、设置、音乐播放器、视频播放器、摄像头和其他应用组件。
 
-[`firmware/bin/`](firmware/bin/) 提供 ESP32-P4 主控和 ESP32-C5 无线协处理器的预编译固件。两者目标芯片和烧录地址不同，烧录前请核对对应说明及固件版本；仓库中存在固件文件不代表它与重新解析的依赖版本兼容。
+[`firmware/README_ZH.md`](firmware/README_ZH.md) 提供适配 10.1-DSI-TOUCH-A 屏幕的 ESP32-P4 出厂固件及烧录说明。ESP32-C5 无线协处理器固件位于 [`firmware/ESP32-C5/`](firmware/ESP32-C5/)。
 
 ## 🗂️ 仓库目录
 
@@ -120,7 +120,7 @@ ESP32-P4 本身不集成射频。Wi-Fi 和蓝牙由 ESP32-C5 协处理器通过 
 | [`examples/esp_idf/`](examples/esp_idf/) | ESP-IDF 外设和功能示例 |
 | [`examples/Arduino/`](examples/Arduino/) | Arduino 示例及本地板卡定义 |
 | [`firmware/brookesia/`](firmware/brookesia/) | ESP-Brookesia 应用固件源码 |
-| [`firmware/bin/`](firmware/bin/) | ESP32-P4 和 ESP32-C5 预编译固件 |
+| [`firmware/`](firmware/) | ESP32-P4 屏幕固件、ESP32-C5 无线协处理器固件及说明 |
 | [`hardware/schematics/`](hardware/schematics/) | 开发板原理图 |
 | [`docs/`](docs/) | 硬件参考和项目文档 |
 | [`assert/`](assert/) | 文档使用的产品图片 |
