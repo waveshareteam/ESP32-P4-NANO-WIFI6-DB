@@ -7,6 +7,7 @@
 | 文件 | 用途 |
 | --- | --- |
 | [ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20261031.bin](ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20261031.bin) | 10.1-DSI-TOUCH-A 屏幕出厂固件 |
+| [ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20260623.bin](ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20260623.bin) | 10.1-DSI-TOUCH-A 屏幕旧版出厂固件 |
 
 ## 烧录
 

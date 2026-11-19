@@ -2,11 +2,12 @@
 
 [English](README.md) | [简体中文](README_ZH.md)
 
-The ESP32-P4 factory image below is for the 10.1-DSI-TOUCH-A display. It is a merged image flashed at `0x0`; the date in its name identifies the version.
+The ESP32-P4 factory images below are for the 10.1-DSI-TOUCH-A display. They are merged images flashed at `0x0`; the date in each name identifies the version.
 
 | File | Purpose |
 | --- | --- |
 | [ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20261031.bin](ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20261031.bin) | Factory firmware for the 10.1-DSI-TOUCH-A display |
+| [ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20260623.bin](ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20260623.bin) | Earlier factory firmware for the 10.1-DSI-TOUCH-A display |
 
 ## Flashing
 
