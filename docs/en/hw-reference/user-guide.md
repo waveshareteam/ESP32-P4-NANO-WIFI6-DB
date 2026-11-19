@@ -73,7 +73,7 @@ The table below lists the key components of the board.
 
 ## 1.4. Factory Firmware
 
-The board application firmware is based on ESP-Brookesia and covers display, touch, audio, camera, video, Wi-Fi, Ethernet and Xiaozhi features. For the feature list, usage and build instructions, see the [Brookesia firmware README](../../../firmware/brookesia/README.md). Prebuilt binaries for the ESP32-P4 main processor and the ESP32-C5 coprocessor are in [`firmware/bin/`](../../../firmware/bin/); the two use different targets and flash addresses, so check the matching instructions and firmware versions before flashing.
+The board application firmware is based on ESP-Brookesia and covers display, touch, audio, camera, video, Wi-Fi, Ethernet and Xiaozhi features. For the feature list, usage and build instructions, see the [Brookesia firmware README](../../../firmware/brookesia/README.md). Prebuilt binaries for the ESP32-P4 main processor and the ESP32-C5 coprocessor are in [`firmware/`](../../../firmware/); the two use different targets and flash addresses, so check the matching instructions and firmware versions before flashing.
 
 # 2. Start Application Development
 
@@ -301,6 +301,6 @@ For board dimensions and mounting holes, see the [official documentation](https:
 ## 4.2. Software Resources
 
 - [Brookesia firmware](../../../firmware/brookesia/README.md)
-- [Prebuilt firmware](../../../firmware/bin/)
+- [Prebuilt firmware](../../../firmware/)
 - [ESP-IDF examples](../../../examples/esp_idf/) and [Arduino examples](../../../examples/Arduino/)
 - [Official documentation](https://docs.waveshare.com/ESP32-P4-NANO-WIFI6-DB/) and [product page](https://www.waveshare.com/esp32-p4-nano-wifi6-db.htm)

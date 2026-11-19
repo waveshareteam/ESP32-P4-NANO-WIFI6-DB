@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "products": [
+    {
+      "id": "esp32-p4-nano-wifi6-db",
+      "model": "ESP32-P4-NANO-WIFI6-DB",
+      "readme": {
+        "en": "firmware/README.md",
+        "zh": "firmware/README_ZH.md"
+      },
+      "files": [
+        "firmware/ESP32-P4-NANO-WIFI6-DB-10.1-DSI-TOUCH-A_Factory_20261031.bin"
+      ]
+    }
+  ]
+}
